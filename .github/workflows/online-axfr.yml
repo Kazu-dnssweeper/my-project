@@ -1,0 +1,31 @@
+name: online-axfr
+
+on:
+  workflow_dispatch:
+    inputs:
+      zone:
+        description: "FQDN of YOUR zone (self-managed only)"
+        required: true
+      consent:
+        description: 'Type "I-ACKNOWLEDGE-SELF-ZONE" to proceed'
+        required: true
+
+jobs:
+  axfr:
+    if: ${{ github.event.inputs.consent == 'I-ACKNOWLEDGE-SELF-ZONE' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install project
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .
+      - name: AXFR (self-zone only)
+        env:
+          TARGET_ZONE: ${{ github.event.inputs.zone }}
+        run: |
+          python -m dns_hygiene_guard --zone src/dns_hygiene_guard/demo/data/zones/demo-public.test.zone --online-axfr --config src/dns_hygiene_guard/demo/data/config/settings.yaml
+          echo "Requested zone: $TARGET_ZONE"

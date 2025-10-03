@@ -1,0 +1,30 @@
+$ORIGIN demo-public.test.
+$TTL 3600
+@      IN SOA ns1.demo-public.test. dns.demo-public.test. (
+               2024092801 ; serial
+               3600       ; refresh
+               900        ; retry
+               1209600    ; expire
+               3600 )     ; minimum
+       IN NS  ns1.demo-public.test.
+       IN NS  ns2.demo-public.test.
+
+@      IN MX 10 mail.demo-public.test.
+mail   IN CNAME mx-edge.cdn.invalid.
+dead   IN MX 10 missing.demo-public.test.
+
+www    IN A 93.184.216.34
+api    IN A 93.184.216.35
+intra  IN A 10.0.0.5
+
+ns1    IN A 93.184.216.40
+ns2    IN NS ns2.demo-public.test.
+; ns2 is intentionally missing A/AAAA to trigger NS-HEALTH
+
+spf    IN TXT "v=spf1 include:a include:b include:c include:d include:e include:f include:g include:h include:i include:j include:k -all"
+oldapp IN CNAME oldapp.github.io.
+fastly IN CNAME dead-service.global.prod.fastly.net.
+azurecdn IN CNAME cdn-demo.azureedge.net.
+s3dead IN CNAME missing-bucket.s3-website-us-east-1.amazonaws.com.
+
+axfr-open IN TXT "axfr:open"

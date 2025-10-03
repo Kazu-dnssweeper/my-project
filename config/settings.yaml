@@ -1,0 +1,18 @@
+window_days: 30
+reporting:
+  language: ja
+  date_format: "%Y-%m-%d %H:%M:%S %Z"
+logs: []
+dns:
+  zone:
+    mode: targets_file
+    paths: []
+    allowed_online_axfr: []
+notify:
+  email: null
+  slack_webhook: ""
+runtime:
+  concurrency: 8
+  timeout_sec: 5
+  retries: 1
+  timezone: "UTC"

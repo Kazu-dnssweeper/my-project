@@ -1,0 +1,4 @@
+# Optional severity overrides per rule identifier.
+# Example:
+# MX-CNAME: high
+# PRIVATE-IP: low

@@ -1,0 +1,29 @@
+name: Demo
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 3 * * *"
+
+jobs:
+  generate-demo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install project
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .
+      - name: Preflight demo configuration
+        run: python scripts/preflight.py --config src/dns_hygiene_guard/demo/data/config/settings.yaml
+      - name: Generate demo reports
+        run: python scripts/generate_demo.py
+      - name: Upload demo artefacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: demo-output
+          path: demo-output/
+          if-no-files-found: warn

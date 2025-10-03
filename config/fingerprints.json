@@ -1,0 +1,24 @@
+{
+  "providers": [
+    {
+      "name": "GitHub Pages",
+      "cname_suffixes": ["github.io"],
+      "body_substrings": ["There isn't a GitHub Pages site here."]
+    },
+    {
+      "name": "Fastly",
+      "cname_suffixes": [".fastly.net", ".global.prod.fastly.net"],
+      "body_substrings": ["Fastly error: unknown domain", "Fastly error: unknown host"]
+    },
+    {
+      "name": "Azure CDN",
+      "cname_suffixes": [".azureedge.net", ".cloudapp.net"],
+      "body_substrings": ["Error 1011: Access Denied", "Azure CDN", "custom domain is not configured"]
+    },
+    {
+      "name": "Amazon S3",
+      "cname_suffixes": [".s3.amazonaws.com", ".s3-website"],
+      "body_substrings": ["NoSuchBucket", "The specified bucket does not exist"]
+    }
+  ]
+}

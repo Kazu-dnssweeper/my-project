@@ -1,0 +1,11 @@
+# Example mapping for Nginx text logs with custom delimiter fields.
+# `match` は glob パターン、`parser` は想定するフォーマット。
+match: /var/log/nginx/*.log
+parser: text
+fields:
+  host: r"host=(?P<value>[^\s]+)"
+  sni: r"sni=(?P<value>[^\s]+)"
+  dst_ip: r"server=(?P<value>[^\s]+)"
+notes: |
+  正規表現に `(?P<value>...)` を含めることで抽出値を指定できます。
+  preflight・実装側でこの仕様を読み込み、ingest時に正規化する想定です。

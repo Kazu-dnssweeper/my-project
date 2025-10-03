@@ -1,0 +1,19 @@
+# Label metadata for exclusionsや補足情報を記録するYAMLテンプレート。
+# ここで定義したFQDN/パターンには `healthcheck` や `cdn-managed` などのラベルを付与し、
+# レポート生成時に抑止・ドキュメント化できます（将来の実装で参照）。
+#
+# - match: "status.*.example.com"   # ワイルドカードや正規表現を想定（実装時に選択）
+#   labels:
+#     - healthcheck
+#   notes: "外形監視ツールが静的に使用しているレコード"
+#
+# - fqdn: "assets.example-cdn.com"
+#   labels:
+#     - cdn-managed
+#   notes: "CDNベンダが管理しているため、未使用判定から除外"
+#
+# - fqdn: "legacy-mail.example.com"
+#   labels:
+#     - exception
+#   expires_on: "2026-03-31"
+#   notes: "移行計画中。期限までに削除予定。"

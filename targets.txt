@@ -1,0 +1,2 @@
+# Add fully-qualified domain names to audit.
+# example.com

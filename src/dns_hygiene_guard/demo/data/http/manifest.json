@@ -1,0 +1,6 @@
+{
+  "oldapp.github.io": "github_pages_missing.html",
+  "dead-service.global.prod.fastly.net": "fastly_unknown.html",
+  "cdn-demo.azureedge.net": "azure_cdn_error.html",
+  "missing-bucket.s3-website-us-east-1.amazonaws.com": "s3_no_bucket.xml"
+}

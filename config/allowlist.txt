@@ -1,0 +1,1 @@
+# Add one record per line to exclude from findings.

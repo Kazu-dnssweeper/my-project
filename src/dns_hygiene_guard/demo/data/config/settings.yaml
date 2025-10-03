@@ -1,0 +1,28 @@
+window_days: 30
+reporting:
+  language: ja
+  date_format: "%Y-%m-%d %H:%M:%S %Z"
+report_dir: demo-output
+logs:
+  - name: demo-nginx
+    type: nginx
+    paths:
+      - ../logs/nginx/2025-09-01_access.log
+      - ../logs/nginx/2025-09-02_access.log
+      - ../logs/nginx/2025-09-03_access.log
+    format: nginx_hygiene
+dns:
+  zone:
+    mode: bind_zone_files
+    paths:
+      - ../zones/demo-public.test.zone
+    allowed_online_axfr:
+      - demo-public.test
+notify:
+  email: null
+  slack_webhook: null
+runtime:
+  concurrency: 4
+  timeout_sec: 5
+  retries: 1
+  timezone: "UTC"

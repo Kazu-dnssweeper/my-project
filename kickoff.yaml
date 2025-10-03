@@ -1,0 +1,14 @@
+# kick off defaults for local/demo runs
+zone_input:
+  mode: targets_file       # or bind_zone_files
+  paths:
+    - ./targets.txt
+notify:
+  slack_webhook: ""
+  email: ""
+deploy:
+  mode: single_binary      # single_binary | container | k8s | ci
+  run_time_utc: "03:17"
+pro_prep:
+  http_log_source: nginx   # nginx | apache | haproxy | iis | ""
+  sample_log_path: ""

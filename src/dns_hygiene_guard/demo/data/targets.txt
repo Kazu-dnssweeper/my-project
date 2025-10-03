@@ -1,0 +1,9 @@
+www.demo-public.test
+mail.demo-public.test
+ns1.demo-public.test
+ns2.demo-public.test
+dead.demo-public.test
+oldapp.demo-public.test
+fastly.demo-public.test
+azurecdn.demo-public.test
+s3dead.demo-public.test

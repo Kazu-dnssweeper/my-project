@@ -1,0 +1,2 @@
+198.51.100.5 - - [01/Sep/2025:00:01:00 +0000] "GET / HTTP/1.1" 200 123 "-" "UA" host=www.demo-public.test sni=www.demo-public.test server=203.0.113.10
+198.51.100.6 - - [01/Sep/2025:01:05:10 +0000] "GET /api HTTP/1.1" 200 42 "-" "UA" host=api.demo-public.test sni=api.demo-public.test server=203.0.113.20

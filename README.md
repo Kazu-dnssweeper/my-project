@@ -1,53 +1,101 @@
-# DNSweeper MVP
+# DNS Hygiene Guard
 
-シンプルな DNS ゴミレコード検出ツールを個人開発で仕上げる Next.js プロジェクトです。Next.js 15 / Supabase / Stripe / Tailwind CSS / Cloudflare API を核に、不要な DNS レコードを洗い出す MVP を構築します。
+自分が管理権限を持つDNSゾーンの健全性を日次でチェックし、危険なレコードや未使用候補をレポートする自動化ツールです。実装の詳細要件は [`SRS.md`](SRS.md) を参照してください。
 
-## ドキュメント
-- [要件定義](docs/mvp/requirements.md)
-- [開発計画](docs/mvp/delivery-plan.md)
-- [進捗ログ](docs/mvp/progress-log.md)
-- [本番前技術チェックリスト](docs/mvp/technical-checklist.md)
+## 言語サポート方針
 
-## 必須セットアップ
-1. `.env.local` を作成し、`.env.example` を参考に **実際のキーで** 全ての環境変数を設定する。
-2. Supabase CLI をインストールし、ログイン済みであることを確認する。
-3. 以下のマイグレーションを本番／ステージ環境に適用する。
-   ```bash
-   supabase db push --project-ref <YOUR_SUPABASE_PROJECT_REF>
-   ```
-4. 型定義を最新化する（Supabase CLI 0.23 以上推奨）。
-   ```bash
-   npm run supabase:types
-   ```
-5. Cloudflare API トークン（Zone:Read, DNS:Read）が `.env.local` に設定されていることを確認する。
-6. Stripe で以下を準備し、環境変数に反映する。
-   - Checkout 用 Price ID（サブスク）
-   - `STRIPE_WEBHOOK_SECRET`（エンドポイント `/api/subscription/webhook` を登録）
+- 既定では日本語UI/ドキュメントを提供します。
+- **海外顧客向け対応を視野に入れ、英語UI/レポート/ドキュメントの切り替えを実装範囲に含めます。**
+- 多言語化の要件と優先度はマイルストーン計画に追記し、将来的には `docs/` 以下に英語版ガイドを整備する予定です。
 
-## ローカル開発
-1. 依存パッケージをインストール
-   ```bash
-   npm install
-   ```
-2. 開発サーバーを起動
-   ```bash
-   npm run dev
-   ```
-3. ブラウザで [http://localhost:3000](http://localhost:3000) を開いて動作を確認。
+## 現状の進捗
 
-主要なページは `app/` 配下で編集できます。トップページは `app/page.tsx`、アプリ本体は `app/app/` 以下に配置されています。
+- ✅ M0〜M2：静的4本（MX/SPF/Private IP/NS）＋AXFRチェックを実装し、`tests/fixtures` 内のゴールデンデータで回帰テスト化。
+- ✅ Proコア：ログ取り込み（Nginxデモ）、usage_indexローリング、未使用FQDN/IP検知、ダングリングCNAME検知（指紋＋HTTPモック）。
+- ✅ `python -m dns_hygiene_guard --demo` でオフライン完結のレポート＆`usage_index.json`を生成。
+- ✅ GitHub Actions はデモモードを既定にし、CIで `pytest` + `ruff` を実行。
+- ⬜️ 実環境ログ／ゾーンでの最終調整、英語UI/ドキュメントの本実装（マイルストーンM6以降）。
 
-## デプロイ・運用チェックリスト
-- Vercel プロジェクトを作成し、上記環境変数をすべて投入する。
-- `supabase/migrations` を本番に適用済みか確認。
-- Stripe Webhook（イベント: `checkout.session.completed`, `customer.subscription.*`）を `/api/subscription/webhook` に向けて接続し、ログが届くことを確認。
-- Cloudflare API トークンを「読み取り専用」に限定し、不要な権限がないか再チェック。
-- Supabase RLS が想定どおり動作するか、匿名権限とサービスロール権限でテストする。
-- `npm run lint` / `npm run build` が本番用環境変数で成功することを確認する。
+> **注意**：AXFR などの診断は必ず自分が管理するゾーンでのみ実行してください。他者ドメインへの適用は禁止です。
 
-## 開発時のメモ
-- Supabase 型は `supabase/types.ts` からアプリ側に供給しています。CLI の `supabase gen types` で随時再生成してください。
-- Cloudflare ゾーンは API から自動解決しますが、レート制限緩和のために `p-limit(5)` で同時実行数を制御しています。
-- Stripe は現状 Pro プランのみを想定。Price ID 変更時は `.env` とダッシュボード文言を更新してください。
+## ディレクトリ構成（抜粋）
 
-進捗やタスクの整理は `docs/mvp/progress-log.md` に記録し、要件との齟齬がないか随時確認してください。
+```
+.
+├── SRS.md / MILESTONES.md / README.md
+├── kickoff.yaml                # M0→M2着手用の入力テンプレート
+├── config/                     # 本番用の設定テンプレート
+├── docs/OPERATIONS.md
+├── src/dns_hygiene_guard/
+│   ├── demo/data/              # ゾーン/ログ/HTTPフィクスチャ一式
+│   ├── logs/                   # usage_index維持ロジック
+│   ├── rules/                  # 静的＆Pro検知
+│   └── ...
+├── tests/                      # ACに対応したpytest
+├── examples/, scripts/         # 今後の配布テンプレート置き場
+└── .github/workflows/
+    ├── ci.yml
+    └── dns-guard.yml           # デモモードでのサンプル実行
+```
+
+## 開発の始め方
+
+1. Python 3.11 以上で仮想環境を作成します。
+2. `pip install -e .[dev]` で開発依存をインストールします。
+3. `pytest` と `ruff check .` でベースラインのCIと同じ検証を行えます。
+
+マイルストーンごとの詳しい進行計画は [`MILESTONES.md`](MILESTONES.md) を参照してください。
+リリース履歴は [`CHANGELOG.md`](CHANGELOG.md) にまとめています。
+
+## デモ実行（オフライン）
+
+疑似ゾーン・アクセスログ・HTTPレスポンスを同梱しているため、ネットワーク接続なしでフルレポートを確認できます。
+
+```bash
+python -m dns_hygiene_guard --demo
+cat demo-output/report.md
+dng --demo   # CLIラッパ（pyproject経由）
+```
+
+`demo-output/usage_index.json` には30日ローリングの使用状況が書き出されます（Pro機能の検証用）。
+
+## CI / GitHub Actions（デモ）
+
+- `.github/workflows/ci.yml` で `pytest` と `ruff check` を実行し、静的分析と回帰テストを担保しています。
+- `.github/workflows/demo.yml` は `python scripts/generate_demo.py` を用いてデモレポートを生成し、`demo-output/` をアーティファクトとして保存します。
+- `.github/workflows/online-axfr.yml` は **手動実行専用** のテンプレートです。`dns.zone.allowed_online_axfr` に登録済みのゾーン名だけが `--online-axfr` を許可され、確認フレーズを入力した場合のみ動きます。
+
+## テスト
+
+```bash
+pytest              # SRS v2.2 のACに対応した回帰テスト
+ruff check .        # コードスタイル＆バリデーション
+```
+
+CIでも同じコマンドを実行します。フィクスチャは `src/dns_hygiene_guard/demo/data/` に集約されているため、実環境がなくても差分検証が可能です。
+
+### 補助スクリプト
+
+- `python scripts/preflight.py --config config/settings.yaml` でログパス/ゾーンファイル/レポートディレクトリの存在・権限をチェックできます。
+- `python -m dns_hygiene_guard --online-axfr` を指定すると、TXTマーカーに加えて実際のAXFRを試行します（network許可がある場合のみ）。
+
+## キックオフ（入力メモ）
+
+`kickoff.yaml` は要件ヒアリング時に埋める最小項目のテンプレートです。ゾーン入力モード／通知先／デプロイ方式／Pro用ログ準備の4点を決めれば、M0→M2を一気に進められます。
+
+### ロケール・時刻と言語
+
+- `config/settings.yaml` の `reporting.language` と `reporting.date_format` でレポートの言語と日時フォーマットを設定できます。
+- `runtime.timezone` はログ解析・レポート生成時に採用するタイムゾーンです（内部処理はUTCで保持し、出力だけ指定TZに変換）。
+- デフォルトは日本語/UTCです。英語に切り替えるとヘッダー・項目名が英語になり、日付も指定フォーマットで表示されます。
+
+### ログフィールドの正規化
+
+- `config/fieldmap/sample-*.yaml` に、テキストログ／JSONログを正規化するためのマッピング仕様サンプルを置いています。実環境ではこれらをベースに `host` / `sni` / `dst_ip` の抽出方法を定義し、今後の実装で `ingest` に反映します。
+
+## FAQ
+
+- **Q. `allowlist.txt` で抑止したい場合は？**  
+  `config/allowlist.txt` に対象のFQDN/IP/ホスト名を1行ずつ記載してください。静的チェック・未使用検知・ダングリング検知のすべてで共通の抑止リストとして扱われ、レポートおよびIssueには表示されません。ドメインの前後に余計な空白やコメントがあると無視されるので注意してください。必要に応じて `labels.yaml` と併用し、抑止した理由をドキュメント化することを推奨します。
+- **Q. `--online-axfr` を誤って他社ゾーンで実行したくありません**  
+  `config/settings.yaml` の `dns.zone.allowed_online_axfr` に自ゾーンを明示的に追加してください。リスト外のゾーンでは `--online-axfr` はスキップされ、CIテンプレートでも確認フレーズを求めることで多重ガードにしています。
