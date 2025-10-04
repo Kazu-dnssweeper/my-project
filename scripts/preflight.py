@@ -6,6 +6,8 @@ import os
 import pathlib
 import sys
 
+import yaml
+
 from dns_hygiene_guard.config_loader import load_settings
 
 
@@ -50,16 +52,31 @@ def preflight(config_path: pathlib.Path) -> int:
     errors: list[str] = []
     warnings: list[str] = []
 
+    log_total = 0
+    log_matched = 0
     for source in settings.logs:
         for pattern in source.paths:
             for path in _resolve_pattern(base_dir, pattern):
+                log_total += 1
                 ok, message = _check_read(path)
                 target = f"log:{source.name}:{pattern}"
                 if ok:
                     print(f"[OK] {target} -> {path}")
+                    if path.exists() and path.is_file():
+                        log_matched += 1
                 else:
                     errors.append(f"{target} ({message})")
                     print(f"[NG] {target} ({message})")
+
+    if log_total:
+        print(f"[INFO] logs checked: {log_matched}/{log_total} entries readable")
+        if log_matched == 0:
+            print(
+                "[HINT] Update settings.logs[*].paths or place sample logs "
+                "under the configured paths."
+            )
+    else:
+        print("[WARN] logs: no paths configured in settings.logs")
 
     zone_paths = settings.dns.paths
     for pattern in zone_paths:
@@ -89,6 +106,10 @@ def preflight(config_path: pathlib.Path) -> int:
         errors.append(f"report_dir ({message})")
         print(f"[NG] report directory ({message})")
 
+    fm_errors, fm_warnings = _check_fieldmaps(base_dir / "fieldmap")
+    errors.extend(fm_errors)
+    warnings.extend(fm_warnings)
+
     if errors:
         print("\nPreflight failed:")
         for err in errors:
@@ -105,6 +126,37 @@ def preflight(config_path: pathlib.Path) -> int:
             print(f"  - {warn}")
     print("\nPreflight complete.")
     return 0
+
+
+def _check_fieldmaps(directory: pathlib.Path) -> tuple[list[str], list[str]]:
+    errors: list[str] = []
+    warnings: list[str] = []
+    if not directory.exists():
+        print(f"[SKIP] fieldmap: {directory} not found")
+        return errors, warnings
+    files = list(directory.glob("*.yaml"))
+    if not files:
+        print(f"[SKIP] fieldmap: no yaml files in {directory}")
+        return errors, warnings
+    checked = 0
+    for file in files:
+        try:
+            data = yaml.safe_load(file.read_text(encoding="utf-8")) or {}
+            map_type = data.get("type", "regex")
+            if map_type == "regex" and "pattern" not in data:
+                raise ValueError("pattern is required for regex fieldmap")
+            if map_type == "json":
+                paths = data.get("json_paths") or data.get("paths")
+                if not paths or "fqdn" not in paths:
+                    raise ValueError("json_paths.fqdn is required for json fieldmap")
+            print(f"[OK] fieldmap -> {file.name} ({map_type})")
+            checked += 1
+        except Exception as exc:  # pragma: no cover - best effort
+            msg = f"fieldmap:{file.name} ({exc})"
+            errors.append(msg)
+            print(f"[NG] {msg}")
+    print(f"[INFO] fieldmap checked: {checked} file(s)")
+    return errors, warnings
 
 
 def main() -> int:

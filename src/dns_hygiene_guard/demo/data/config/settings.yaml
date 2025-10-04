@@ -2,6 +2,9 @@ window_days: 30
 reporting:
   language: ja
   date_format: "%Y-%m-%d %H:%M:%S %Z"
+  include_unused_in_main: true
+  emit_unused_file: true
+  unused_filename: "unused_report.md"
 report_dir: demo-output
 logs:
   - name: demo-nginx

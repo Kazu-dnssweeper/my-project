@@ -2,6 +2,10 @@ window_days: 30
 reporting:
   language: ja
   date_format: "%Y-%m-%d %H:%M:%S %Z"
+  sort: severity_then_rule
+  include_unused_in_main: true
+  emit_unused_file: true
+  unused_filename: "unused_report.md"
 logs: []
 dns:
   zone:
@@ -9,8 +13,20 @@ dns:
     paths: []
     allowed_online_axfr: []
 notify:
-  email: null
-  slack_webhook: ""
+  slack:
+    enabled: false
+    webhook_url: ""
+    only_when_findings: true
+  email:
+    enabled: false
+    smtp_host: ""
+    smtp_port: 587
+    use_tls: true
+    username: ""
+    password_env: DNG_SMTP_PASSWORD
+    from: "dns-guard@example.com"
+    to: []
+    only_when_findings: true
 runtime:
   concurrency: 8
   timeout_sec: 5

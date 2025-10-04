@@ -1,11 +1,7 @@
-# JSONラインログを正規化するためのサンプル。
-match: /var/log/ingress/*.jsonl
-parser: json
-fields:
-  host: $.request.host
-  sni: $.tls.sni
-  dst_ip: $.upstream.ip
-  source_ip: $.client.ip
-notes: |
-  JSONPath風の指定。将来的に jq 互換式やSimple JSON Pointerを採用する想定で、
-  preflightでキー存在チェックのみを行い、本番実装で実際の抽出を行います。
+type: json
+json_paths:
+  fqdn: 'host'
+  ip: 'dst.ip'
+  ts: '@timestamp'
+idn_normalize: true
+tz_assume: 'UTC'

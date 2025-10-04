@@ -1,6 +1,7 @@
 # DNS Hygiene Guard
 
 自分が管理権限を持つDNSゾーンの健全性を日次でチェックし、危険なレコードや未使用候補をレポートする自動化ツールです。実装の詳細要件は [`SRS.md`](SRS.md) を参照してください。
+English summary is available in [`README.en.md`](README.en.md).
 
 ## 言語サポート方針
 
@@ -91,7 +92,31 @@ CIでも同じコマンドを実行します。フィクスチャは `src/dns_hy
 
 ### ログフィールドの正規化
 
-- `config/fieldmap/sample-*.yaml` に、テキストログ／JSONログを正規化するためのマッピング仕様サンプルを置いています。実環境ではこれらをベースに `host` / `sni` / `dst_ip` の抽出方法を定義し、今後の実装で `ingest` に反映します。
+- `config/fieldmap/` に **regex / json** ベースのマッピングを置くと、アクセスログから `fqdn` / `ip` / `timestamp` を自動抽出します。
+  ```yaml
+  # config/fieldmap/sample-regex.yaml
+  type: regex
+  pattern: 'host=(?P<host>[^\s]+).*?(?:server|dst)=(?P<dst>[0-9a-fA-F\.:]+)'
+  fields:
+    fqdn: '{host}'
+    ip: '{dst}'
+  timestamp:
+    regex: '(?P<ts>\d{2}/[A-Za-z]{3}/\d{4}:\d{2}:\d{2}:\d{2} [+-]\d{4})'
+    strptime: '%d/%b/%Y:%H:%M:%S %z'
+  idn_normalize: true
+  ```
+  ```yaml
+  # config/fieldmap/sample-json.yaml
+  type: json
+  json_paths:
+    fqdn: 'host'
+    ip: 'dst.ip'
+    ts: '@timestamp'
+  idn_normalize: true
+  tz_assume: 'UTC'
+  ```
+- IDN は内部で Punycode に正規化し、出力時のみ Unicode に戻します。時刻は UTC で保持し、`reporting.date_format` で出力TZを制御します。
+- `scripts/preflight.py` で fieldmap を検証し、パターン未設定などの失敗を事前に把握できます。
 
 ## FAQ
 
@@ -99,3 +124,9 @@ CIでも同じコマンドを実行します。フィクスチャは `src/dns_hy
   `config/allowlist.txt` に対象のFQDN/IP/ホスト名を1行ずつ記載してください。静的チェック・未使用検知・ダングリング検知のすべてで共通の抑止リストとして扱われ、レポートおよびIssueには表示されません。ドメインの前後に余計な空白やコメントがあると無視されるので注意してください。必要に応じて `labels.yaml` と併用し、抑止した理由をドキュメント化することを推奨します。
 - **Q. `--online-axfr` を誤って他社ゾーンで実行したくありません**  
   `config/settings.yaml` の `dns.zone.allowed_online_axfr` に自ゾーンを明示的に追加してください。リスト外のゾーンでは `--online-axfr` はスキップされ、CIテンプレートでも確認フレーズを求めることで多重ガードにしています。
+
+## Sponsors / Support
+
+DNS Hygiene Guard は **自ゾーン限定・オフライン志向** の設計で、外部に生ログは保存しません。継続的なルール/指紋DBの更新を助けてもらえる場合、以下からご支援いただけます。
+
+- GitHub Sponsors: *(your link here)*

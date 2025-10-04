@@ -53,9 +53,10 @@ class Report:
     window_days: int
     targets: list[str]
     findings: list[Finding]
+    ingest_stats: dict[str, int] | None = None
 
     def to_json(self) -> dict[str, object]:
-        return {
+        payload: dict[str, object] = {
             "generated_at": self.generated_at.isoformat(),
             "window_days": self.window_days,
             "targets": self.targets,
@@ -65,3 +66,6 @@ class Report:
                 "total_findings": len(self.findings),
             },
         }
+        if self.ingest_stats:
+            payload["ingest_stats"] = dict(self.ingest_stats)
+        return payload

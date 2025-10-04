@@ -11,7 +11,20 @@ on:
         required: true
 
 jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check consent phrase
+        if: ${{ github.event.inputs.consent != 'I-ACKNOWLEDGE-SELF-ZONE' }}
+        run: |
+          echo 'Consent phrase mismatch. Please type "I-ACKNOWLEDGE-SELF-ZONE" to run this workflow.'
+          exit 1
+      - name: Consent acknowledged
+        if: ${{ github.event.inputs.consent == 'I-ACKNOWLEDGE-SELF-ZONE' }}
+        run: echo "Consent verified for self-zone AXFR"
+
   axfr:
+    needs: validate
     if: ${{ github.event.inputs.consent == 'I-ACKNOWLEDGE-SELF-ZONE' }}
     runs-on: ubuntu-latest
     steps:

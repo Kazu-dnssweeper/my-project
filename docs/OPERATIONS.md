@@ -34,6 +34,7 @@
 ## 4. データ保存ポリシー
 
 - `report.json` / `report.md`、`usage_index.json`（Proのみ集合データ）を既定で `/var/lib/dns-hygiene/` に保存します。パスは `settings.yaml` で変更できます。
+- 未使用サマリは `reporting.include_unused_in_main` でメインレポートへ出力し、必要に応じて `reporting.emit_unused_file` で `unused_report.md` を別ファイルとして保存できます。
 - 生ログやSecretsの平文コピーは作成しません。必要に応じて保存ディレクトリのパーミッションを `750`、ファイルは `640` で管理者グループのみ読み取りにします。
 
 ## 5. 運用フロー（提案）
@@ -50,6 +51,21 @@
 - AXFRテストは必ず自ゾーンに限定し、READMEやユーザドキュメントにも禁止事項を強調します。
 - `python -m dns_hygiene_guard --online-axfr` で実ネットワーク越しのAXFR診断を行う場合は、接続元IPが許可されているか・タイムアウト設定が適切かを必ず確認してください。
 - ネットワーク送信先は通知チャネルのみ。外部SaaSへ生ログを送らない構成が前提です。
+
+### オンラインAXFRの承認フロー
+
+1. `config/settings.yaml` の `dns.zone.allowed_online_axfr` に対象ゾーンを **Pull Request** 経由で追加します。
+   ```yaml
+   dns:
+     zone:
+       allowed_online_axfr:
+         - example.com.
+         - demo-public.test.
+   ```
+2. PR には **CODEOWNERS（例: @Kazu-dnssweeper）** の承認が必須です。main へ直接 push せず、レビューで証跡を残します。
+3. GitHub Actions の `online-axfr` ワークフローを `workflow_dispatch` で起動し、入力値として自ゾーンと承認文言 `I-ACKNOWLEDGE-SELF-ZONE` を指定します。
+4. 実行ログには、対象ゾーン・許可根拠・結果を記録します。
+5. 失敗時は `allowed_online_axfr` へ追加 → PR 承認 → 再実行の手順で復旧します。
 
 ## 7. 障害対応とメンテナンス
 

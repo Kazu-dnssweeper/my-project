@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dns-hygiene-guard"
-version = "0.1.0"
+version = "0.2.0"
 description = "Automation tooling to audit DNS hygiene for self-managed zones."
 authors = [{ name = "DNS Hygiene Guard Maintainers" }]
 requires-python = ">=3.11"

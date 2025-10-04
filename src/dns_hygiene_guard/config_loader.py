@@ -28,12 +28,12 @@ class DnsZoneConfig:
 
 @dataclasses.dataclass(slots=True)
 class NotifyConfig:
-    email: str | None
-    slack_webhook: str | None
+    slack: dict[str, Any]
+    email: dict[str, Any]
 
     @property
     def has_notifications(self) -> bool:
-        return bool(self.email or self.slack_webhook)
+        return bool(self.slack.get("enabled") or self.email.get("enabled"))
 
 
 @dataclasses.dataclass(slots=True)
@@ -48,6 +48,10 @@ class RuntimeConfig:
 class ReportingConfig:
     language: str
     date_format: str
+    sort: str = "severity_then_rule"
+    include_unused_in_main: bool = True
+    emit_unused_file: bool = False
+    unused_filename: str = "unused_report.md"
 
 
 @dataclasses.dataclass(slots=True)
@@ -85,8 +89,8 @@ class Settings:
         )
         notify_section = mapping.get("notify", {})
         notify = NotifyConfig(
-            email=notify_section.get("email") or None,
-            slack_webhook=notify_section.get("slack_webhook") or None,
+            slack=notify_section.get("slack", {}),
+            email=notify_section.get("email", {}),
         )
         runtime_section = mapping.get("runtime", {})
         runtime = RuntimeConfig(
@@ -107,7 +111,18 @@ class Settings:
         if language not in {"ja", "en"}:
             language = "ja"
         date_format = reporting_section.get("date_format") or "%Y-%m-%d %H:%M:%S %Z"
-        reporting = ReportingConfig(language=language, date_format=date_format)
+        sort_mode = reporting_section.get("sort", "severity_then_rule")
+        include_unused = reporting_section.get("include_unused_in_main", True)
+        emit_unused = reporting_section.get("emit_unused_file", False)
+        unused_filename = reporting_section.get("unused_filename", "unused_report.md")
+        reporting = ReportingConfig(
+            language=language,
+            date_format=date_format,
+            sort=sort_mode,
+            include_unused_in_main=bool(include_unused),
+            emit_unused_file=bool(emit_unused),
+            unused_filename=str(unused_filename),
+        )
         return Settings(
             window_days=window_days,
             logs=logs,

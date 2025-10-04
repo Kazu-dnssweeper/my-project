@@ -11,3 +11,4 @@ htmlcov/
 .eggs/
 .DS_Store
 demo-output/
+dist/
