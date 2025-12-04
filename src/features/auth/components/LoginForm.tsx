@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -10,8 +11,10 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Spinner } from '@/components/ui/spinner'
+import { Separator } from '@/components/ui/separator'
 import { AlertCircle } from 'lucide-react'
 import { useLogin } from '../hooks/useLogin'
+import { GoogleLoginButton } from './GoogleLoginButton'
 import type { LoginFormData } from '../types'
 
 const loginSchema = z.object({
@@ -26,6 +29,7 @@ interface LoginFormProps {
 
 export function LoginForm({ onSuccess, onError }: LoginFormProps) {
   const { mutate: login, isPending, error } = useLogin()
+  const [googleError, setGoogleError] = useState<string | null>(null)
 
   const {
     register,
@@ -52,12 +56,31 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
       </CardHeader>
       <form onSubmit={handleSubmit(onSubmit)}>
         <CardContent className="space-y-4">
-          {error && (
+          {(error || googleError) && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{error.message}</AlertDescription>
+              <AlertDescription>{error?.message || googleError}</AlertDescription>
             </Alert>
           )}
+
+          {/* Google ログインボタン */}
+          <GoogleLoginButton
+            mode="login"
+            onError={(err) => setGoogleError(err.message)}
+            className="w-full"
+          />
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <Separator />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">
+                または
+              </span>
+            </div>
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="email">メールアドレス</Label>
             <Input
@@ -72,7 +95,15 @@ export function LoginForm({ onSuccess, onError }: LoginFormProps) {
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">パスワード</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="password">パスワード</Label>
+              <Link
+                href="/forgot-password"
+                className="text-sm text-primary hover:underline"
+              >
+                パスワードを忘れた方
+              </Link>
+            </div>
             <Input
               id="password"
               type="password"

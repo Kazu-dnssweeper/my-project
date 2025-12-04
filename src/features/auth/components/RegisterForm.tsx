@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -10,16 +11,19 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Spinner } from '@/components/ui/spinner'
+import { Separator } from '@/components/ui/separator'
 import { AlertCircle } from 'lucide-react'
 import { useRegister } from '../hooks/useRegister'
+import { GoogleLoginButton } from './GoogleLoginButton'
 import type { RegisterFormData } from '../types'
 
 const registerSchema = z.object({
-  companyName: z.string().min(1, '会社名を入力してください'),
+  companyName: z.string().min(1, '会社名を入力してください').optional(),
   name: z.string().min(1, '名前を入力してください'),
   email: z.string().email('有効なメールアドレスを入力してください'),
-  password: z.string().min(6, 'パスワードは6文字以上で入力してください'),
-  confirmPassword: z.string().min(6, 'パスワード（確認）を入力してください'),
+  password: z.string().min(8, 'パスワードは8文字以上で入力してください'),
+  confirmPassword: z.string().min(8, 'パスワード（確認）を入力してください'),
+  agreeToTerms: z.boolean().optional(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: 'パスワードが一致しません',
   path: ['confirmPassword'],
@@ -28,10 +32,12 @@ const registerSchema = z.object({
 interface RegisterFormProps {
   onSuccess?: () => void
   onError?: (error: Error) => void
+  invitationToken?: string
 }
 
-export function RegisterForm({ onSuccess, onError }: RegisterFormProps) {
+export function RegisterForm({ onSuccess, onError, invitationToken }: RegisterFormProps) {
   const { mutate: register, isPending, error } = useRegister()
+  const [googleError, setGoogleError] = useState<string | null>(null)
 
   const {
     register: formRegister,
@@ -58,24 +64,49 @@ export function RegisterForm({ onSuccess, onError }: RegisterFormProps) {
       </CardHeader>
       <form onSubmit={handleSubmit(onSubmit)}>
         <CardContent className="space-y-4">
-          {error && (
+          {(error || googleError) && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{error.message}</AlertDescription>
+              <AlertDescription>{error?.message || googleError}</AlertDescription>
             </Alert>
           )}
-          <div className="space-y-2">
-            <Label htmlFor="companyName">会社名</Label>
-            <Input
-              id="companyName"
-              placeholder="株式会社サンプル"
-              {...formRegister('companyName')}
-              aria-invalid={!!errors.companyName}
-            />
-            {errors.companyName && (
-              <p className="text-sm text-destructive">{errors.companyName.message}</p>
-            )}
-          </div>
+
+          {/* Google 登録ボタン */}
+          {!invitationToken && (
+            <>
+              <GoogleLoginButton
+                mode="register"
+                onError={(err) => setGoogleError(err.message)}
+                className="w-full"
+              />
+
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <Separator />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">
+                    または
+                  </span>
+                </div>
+              </div>
+            </>
+          )}
+
+          {!invitationToken && (
+            <div className="space-y-2">
+              <Label htmlFor="companyName">会社名</Label>
+              <Input
+                id="companyName"
+                placeholder="株式会社サンプル"
+                {...formRegister('companyName')}
+                aria-invalid={!!errors.companyName}
+              />
+              {errors.companyName && (
+                <p className="text-sm text-destructive">{errors.companyName.message}</p>
+              )}
+            </div>
+          )}
           <div className="space-y-2">
             <Label htmlFor="name">名前</Label>
             <Input
@@ -106,7 +137,7 @@ export function RegisterForm({ onSuccess, onError }: RegisterFormProps) {
             <Input
               id="password"
               type="password"
-              placeholder="6文字以上"
+              placeholder="8文字以上"
               {...formRegister('password')}
               aria-invalid={!!errors.password}
             />

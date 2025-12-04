@@ -24,12 +24,15 @@ export interface Tenant extends BaseEntity {
   name: string
 }
 
+// ユーザー権限
+export type UserRole = 'admin' | 'editor' | 'viewer'
+
 // ユーザー
 export interface User extends BaseEntity {
   tenant_id: ID
   email: string
   name: string | null
-  role: 'admin' | 'member'
+  role: UserRole
 }
 
 // カテゴリ
