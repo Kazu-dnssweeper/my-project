@@ -7,6 +7,7 @@
 **セッション開始後、最初に以下のコマンドを実行すること。ユーザーからの指示を待たずに即座に実行：**
 
 ```bash
+git fetch --all
 git checkout main
 git pull origin main
 ```
