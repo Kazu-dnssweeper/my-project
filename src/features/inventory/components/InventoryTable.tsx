@@ -1,5 +1,6 @@
 'use client'
 
+import { memo, useCallback } from 'react'
 import Link from 'next/link'
 import {
   Table,
@@ -38,7 +39,48 @@ const stockStatusLabel = {
   out: '欠品',
 } as const
 
-export function InventoryTable({
+// Memoized table row component
+interface InventoryRowProps {
+  item: ItemWithStock
+  onEdit?: (item: ItemWithStock) => void
+}
+
+const InventoryRow = memo(function InventoryRow({ item, onEdit }: InventoryRowProps) {
+  const handleEdit = useCallback(() => {
+    onEdit?.(item)
+  }, [item, onEdit])
+
+  return (
+    <TableRow>
+      <TableCell className="font-mono">{item.item_code}</TableCell>
+      <TableCell className="font-medium">{item.name}</TableCell>
+      <TableCell>{item.category?.name || '-'}</TableCell>
+      <TableCell className="text-right tabular-nums">
+        {item.total_quantity.toLocaleString()}
+      </TableCell>
+      <TableCell>{item.unit}</TableCell>
+      <TableCell>
+        <Badge variant={stockStatusVariant[item.stock_status]}>
+          {stockStatusLabel[item.stock_status]}
+        </Badge>
+      </TableCell>
+      <TableCell>
+        <div className="flex gap-1">
+          <Button variant="ghost" size="icon" asChild>
+            <Link href={`/inventory/${item.id}`}>
+              <Eye className="h-4 w-4" />
+            </Link>
+          </Button>
+          <Button variant="ghost" size="icon" onClick={handleEdit}>
+            <Edit className="h-4 w-4" />
+          </Button>
+        </div>
+      </TableCell>
+    </TableRow>
+  )
+})
+
+export const InventoryTable = memo(function InventoryTable({
   items,
   isLoading,
   sortBy,
@@ -46,6 +88,13 @@ export function InventoryTable({
   onSort,
   onEdit,
 }: InventoryTableProps) {
+  const handleSort = useCallback(
+    (column: string) => {
+      onSort?.(column)
+    },
+    [onSort]
+  )
+
   const SortIcon = ({ column }: { column: string }) => {
     if (sortBy !== column) return null
     return sortOrder === 'asc' ? (
@@ -64,7 +113,7 @@ export function InventoryTable({
   }) => (
     <TableHead
       className="cursor-pointer hover:bg-muted/50"
-      onClick={() => onSort?.(column)}
+      onClick={() => handleSort(column)}
     >
       {children}
       <SortIcon column={column} />
@@ -105,39 +154,10 @@ export function InventoryTable({
         </TableHeader>
         <TableBody>
           {items.map((item) => (
-            <TableRow key={item.id}>
-              <TableCell className="font-mono">{item.item_code}</TableCell>
-              <TableCell className="font-medium">{item.name}</TableCell>
-              <TableCell>{item.category?.name || '-'}</TableCell>
-              <TableCell className="text-right tabular-nums">
-                {item.total_quantity.toLocaleString()}
-              </TableCell>
-              <TableCell>{item.unit}</TableCell>
-              <TableCell>
-                <Badge variant={stockStatusVariant[item.stock_status]}>
-                  {stockStatusLabel[item.stock_status]}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                <div className="flex gap-1">
-                  <Button variant="ghost" size="icon" asChild>
-                    <Link href={`/inventory/${item.id}`}>
-                      <Eye className="h-4 w-4" />
-                    </Link>
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onEdit?.(item)}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
+            <InventoryRow key={item.id} item={item} onEdit={onEdit} />
           ))}
         </TableBody>
       </Table>
     </div>
   )
-}
+})

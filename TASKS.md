@@ -355,6 +355,29 @@ interface Item {
 
 ---
 
+## Phase 9: テスト/最適化
+
+### Task 9-1: テスト環境セットアップ
+- [x] vitest.config.ts作成
+- [x] テストセットアップファイル（src/test/setup.ts）
+- [x] テストユーティリティ（src/test/test-utils.tsx）
+- [x] package.jsonにテストスクリプト追加
+
+### Task 9-2: ユニットテスト
+- [x] utils.test.ts（cn関数のテスト）
+- [x] use-debounce.test.ts（debounce hookのテスト）
+
+### Task 9-3: コンポーネントテスト
+- [x] InventoryTable.test.tsx
+- [x] TransactionTable.test.tsx
+
+### Task 9-4: パフォーマンス最適化
+- [x] InventoryTable - React.memo, useCallback適用
+- [x] TransactionTable - React.memo, useMemo適用
+- [x] TableRowコンポーネントのメモ化
+
+---
+
 ## 完了チェックリスト
 
 各タスク完了時に確認:

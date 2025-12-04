@@ -1,5 +1,6 @@
 'use client'
 
+import { memo, useMemo } from 'react'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import {
@@ -61,7 +62,51 @@ const subTypeLabels: Record<string, string> = {
   transfer: '移動',
 }
 
-export function TransactionTable({
+// Memoized row component
+interface TransactionRowProps {
+  tx: TransactionWithDetails
+  showItem: boolean
+}
+
+const TransactionRow = memo(function TransactionRow({ tx, showItem }: TransactionRowProps) {
+  const config = typeConfig[tx.type as keyof typeof typeConfig] || typeConfig.ADJUST
+  const Icon = config.icon
+
+  const formattedDate = useMemo(
+    () => format(new Date(tx.transacted_at), 'MM/dd HH:mm', { locale: ja }),
+    [tx.transacted_at]
+  )
+
+  return (
+    <TableRow>
+      <TableCell className="whitespace-nowrap">{formattedDate}</TableCell>
+      <TableCell>
+        <div className="flex items-center gap-2">
+          <Icon className={`h-4 w-4 ${config.color}`} />
+          <Badge variant={config.variant}>{config.label}</Badge>
+          {tx.sub_type && (
+            <span className="text-xs text-muted-foreground">
+              ({subTypeLabels[tx.sub_type] || tx.sub_type})
+            </span>
+          )}
+        </div>
+      </TableCell>
+      {showItem && <TableCell className="font-mono">{tx.item_code}</TableCell>}
+      {showItem && <TableCell>{tx.item_name}</TableCell>}
+      <TableCell className="text-right tabular-nums font-medium">
+        <span className={config.color}>
+          {tx.type === 'IN' ? '+' : tx.type === 'OUT' ? '-' : ''}
+          {tx.quantity.toLocaleString()}
+        </span>
+      </TableCell>
+      <TableCell>{tx.warehouse_name || '-'}</TableCell>
+      <TableCell className="font-mono text-sm">{tx.lot_number || '-'}</TableCell>
+      <TableCell className="max-w-[200px] truncate">{tx.note || '-'}</TableCell>
+    </TableRow>
+  )
+})
+
+export const TransactionTable = memo(function TransactionTable({
   transactions,
   isLoading,
   showItem = true,
@@ -100,50 +145,11 @@ export function TransactionTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {transactions.map((tx) => {
-            const config = typeConfig[tx.type as keyof typeof typeConfig] || typeConfig.ADJUST
-            const Icon = config.icon
-
-            return (
-              <TableRow key={tx.id}>
-                <TableCell className="whitespace-nowrap">
-                  {format(new Date(tx.transacted_at), 'MM/dd HH:mm', {
-                    locale: ja,
-                  })}
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <Icon className={`h-4 w-4 ${config.color}`} />
-                    <Badge variant={config.variant}>{config.label}</Badge>
-                    {tx.sub_type && (
-                      <span className="text-xs text-muted-foreground">
-                        ({subTypeLabels[tx.sub_type] || tx.sub_type})
-                      </span>
-                    )}
-                  </div>
-                </TableCell>
-                {showItem && (
-                  <TableCell className="font-mono">{tx.item_code}</TableCell>
-                )}
-                {showItem && <TableCell>{tx.item_name}</TableCell>}
-                <TableCell className="text-right tabular-nums font-medium">
-                  <span className={config.color}>
-                    {tx.type === 'IN' ? '+' : tx.type === 'OUT' ? '-' : ''}
-                    {tx.quantity.toLocaleString()}
-                  </span>
-                </TableCell>
-                <TableCell>{tx.warehouse_name || '-'}</TableCell>
-                <TableCell className="font-mono text-sm">
-                  {tx.lot_number || '-'}
-                </TableCell>
-                <TableCell className="max-w-[200px] truncate">
-                  {tx.note || '-'}
-                </TableCell>
-              </TableRow>
-            )
-          })}
+          {transactions.map((tx) => (
+            <TransactionRow key={tx.id} tx={tx} showItem={showItem} />
+          ))}
         </TableBody>
       </Table>
     </div>
   )
-}
+})
