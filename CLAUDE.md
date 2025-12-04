@@ -1,5 +1,62 @@
 # PartStock - 電子部品製造業向けクラウド在庫管理システム
 
+---
+
+## 現在の状況（セッション開始時に必ず確認）
+
+| 項目 | 内容 |
+|-----|------|
+| 進捗 | Phase 1（MVP）完了、Phase 2一部完了 |
+| 次のタスク | DB関数作成（handle_new_user, get_dashboard_kpi等） |
+| 最終更新 | 2025-12-04 |
+
+**詳細な進捗は TASKS.md の「進捗サマリー」「残タスク」セクションを参照**
+
+---
+
+## 重要：開発ルール（必ず守ること）
+
+### タスク管理ルール
+
+**すべてのタスクはTASKS.mdで管理する。以下のルールを厳守すること。**
+
+| 状況 | 操作 | 例 |
+|-----|------|-----|
+| 新しいタスクが発生 | TASKS.mdに追記 | `- [ ] 新しいタスク` |
+| タスク完了 | チェックを入れる | `- [x] 完了したタスク` |
+| タスク中止/不要 | 取り消し線で表示 | `- [ ] ~~不要になったタスク~~` |
+
+**具体的な手順：**
+
+1. **作業開始前**: TASKS.mdを確認し、何を実装するか把握
+2. **新タスク発見時**: 即座にTASKS.mdへ追記してから作業開始
+3. **作業完了時**: TASKS.mdの該当タスクを `- [x]` に更新
+4. **作業中止時**: TASKS.mdの該当タスクに取り消し線 `~~タスク名~~`
+
+**禁止事項：**
+- TASKS.mdを更新せずにタスクを完了したと報告すること
+- タスクを削除すること（履歴として残す）
+- 複数タスクをまとめて完了報告すること（1つずつ更新）
+
+### コード品質ルール
+
+1. **型安全**: `any` 禁止、必ず型定義
+2. **コンポーネント**: 設計書の仕様に従う
+3. **テスト**: 主要機能は動作確認してから完了報告
+4. **コミット**: 機能単位で小さくコミット
+
+### 設計書の参照順序
+
+1. **CLAUDE.md** - プロジェクト概要（このファイル）
+2. **TASKS.md** - 実装タスク一覧
+3. **各設計書** - 機能別の詳細設計
+   - AUTH-DESIGN.md（認証）
+   - KPI-DESIGN.md（ダッシュボードKPI）
+   - ALERT-DESIGN.md（発注点アラート）
+   - PHASE2-DESIGN.md（Phase 2 概要）
+
+---
+
 ## プロジェクト概要
 
 電子部品製造業（従業員100人以上の中堅企業）向けのシンプルな在庫管理SaaS。
@@ -105,60 +162,9 @@ npm run db:types
 
 ---
 
-## 開発フェーズ（ボトムアップ）
+## 開発フェーズ
 
-### Phase 0: セットアップ（現在）
-- [x] プロジェクト構成定義
-- [ ] Next.js プロジェクト作成
-- [ ] Supabase プロジェクト作成
-- [ ] shadcn/ui 導入
-- [ ] 基本設定（ESLint, Prettier, TypeScript）
-
-### Phase 1: Atoms（ui/）
-- [ ] Button, Input, Label
-- [ ] Badge, Card, Select
-- [ ] Checkbox, Dialog, Toast
-- [ ] Skeleton, Spinner
-
-### Phase 2: Molecules（forms/, data-display/）
-- [ ] FormField, SearchBox, SelectField
-- [ ] NumberInput, DatePicker, ComboBox
-- [ ] DataTable, KPICard, AlertCard
-- [ ] EmptyState, StatusBadge, Pagination
-
-### Phase 3: Layouts
-- [ ] AppShell, Header, SideNav
-- [ ] PageHeader, AuthLayout
-
-### Phase 4: Feature - inventory/
-- [ ] types/inventory.ts
-- [ ] api/inventory.ts
-- [ ] hooks/useInventory.ts
-- [ ] InventoryTable, InventoryForm
-- [ ] InventoryFilters, InventoryCard
-
-### Phase 5: Feature - transaction/
-- [ ] types/transaction.ts
-- [ ] api/transaction.ts
-- [ ] hooks/useTransaction.ts
-- [ ] TransactionForm, TransactionTable
-- [ ] TransactionTypeSelect, QuantityInput
-
-### Phase 6: Feature - barcode/
-- [ ] BarcodeScanner（カメラ読み取り）
-- [ ] BarcodeInput, LabelGenerator
-- [ ] LabelPreview, ScanHistory
-
-### Phase 7: Feature - lot/, bom/
-- [ ] LotTable, LotForm, LotSelect
-- [ ] BomTree, BomEditor, BomTable
-
-### Phase 8: ページ組み立て
-- [ ] 認証ページ
-- [ ] ダッシュボード
-- [ ] 在庫一覧・詳細
-- [ ] 入出庫登録・履歴
-- [ ] BOM管理
+**タスク管理は TASKS.md を参照**
 
 ---
 
