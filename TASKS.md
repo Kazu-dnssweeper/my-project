@@ -333,24 +333,25 @@ interface Item {
 - [x] `src/app/(auth)/layout.tsx`
 
 ### Task 8-2: ダッシュボード
-- `src/app/(dashboard)/dashboard/page.tsx`
-- KPIカード、アラート一覧
+- [x] `src/app/(dashboard)/dashboard/page.tsx`
+- [x] KPIカード、アラート一覧
 
 ### Task 8-3: 在庫一覧
-- `src/app/(dashboard)/inventory/page.tsx`
-- InventoryFilters + InventoryTable
+- [x] `src/app/(dashboard)/inventory/page.tsx`
+- [x] InventoryFilters + InventoryTable
+- [x] InventoryForm（登録/編集ダイアログ）
 
 ### Task 8-4: 在庫詳細
-- `src/app/(dashboard)/inventory/[id]/page.tsx`
-- 部品詳細 + 取引履歴
+- [x] `src/app/(dashboard)/inventory/[id]/page.tsx`
+- [x] 部品詳細 + ロット別在庫 + 取引履歴
 
 ### Task 8-5: 入出庫登録
-- `src/app/(dashboard)/transactions/new/page.tsx`
-- TransactionForm + BarcodeInput
+- [x] `src/app/(dashboard)/transactions/new/page.tsx`
+- [x] TransactionForm（入庫/出庫/移動対応）
 
 ### Task 8-6: 取引履歴
-- `src/app/(dashboard)/transactions/page.tsx`
-- TransactionTable
+- [x] `src/app/(dashboard)/transactions/page.tsx`
+- [x] TransactionTable + TransactionFilters
 
 ---
 
