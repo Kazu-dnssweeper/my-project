@@ -270,12 +270,46 @@ interface Item {
 
 ---
 
+## Phase 7.5: 拡張認証機能
+
+### Task 7.5-1: Google OAuth認証
+- [x] GoogleLoginButtonコンポーネント作成
+- [x] OAuthコールバック（`/auth/callback`）実装
+- [x] Google Cloud Console設定
+- [x] Supabase Google Provider設定
+- [ ] Supabase RLSポリシー設定（anon/authenticated用）
+
+### Task 7.5-2: パスワードリセット機能
+- [x] ForgotPasswordFormコンポーネント作成
+- [x] ResetPasswordFormコンポーネント作成
+- [x] `/forgot-password`ページ作成
+- [x] `/reset-password`ページ作成
+
+### Task 7.5-3: ユーザー招待機能
+- [x] 招待API（`api/invite.ts`）作成
+- [x] useInviteフック作成
+- [x] InviteUserDialogコンポーネント作成
+- [x] AcceptInviteFormコンポーネント作成
+- [x] `/accept-invite`ページ作成
+
+### Task 7.5-4: ロールベースアクセス制御
+- [x] permissions.ts（権限チェック関数）作成
+- [x] RoleGuardコンポーネント作成
+- [x] UserRole型定義（admin/editor/viewer）
+
+### Task 7.5-5: オンボーディング
+- [x] OnboardingFormコンポーネント作成
+- [x] `/onboarding`ページ作成
+- [ ] 初回OAuthユーザーのテナント作成フロー確認
+
+---
+
 ## Phase 8: ページ組み立て
 
 ### Task 8-1: 認証ページ
-- `src/app/(auth)/login/page.tsx`
-- `src/app/(auth)/register/page.tsx`
-- `src/app/(auth)/layout.tsx`
+- [x] `src/app/(auth)/login/page.tsx`
+- [x] `src/app/(auth)/register/page.tsx`
+- [x] `src/app/(auth)/layout.tsx`
 
 ### Task 8-2: ダッシュボード
 - `src/app/(dashboard)/dashboard/page.tsx`
