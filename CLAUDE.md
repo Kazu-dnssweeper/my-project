@@ -23,11 +23,11 @@ git pull origin main
 
 | 項目 | 内容 |
 |-----|------|
-| 進捗 | Phase 1（MVP）完了、Phase 2一部完了 |
-| 次のタスク | DB関数作成（handle_new_user, get_dashboard_kpi等） |
+| 進捗 | Phase 7.5（認証）完了、Phase 7.6（DB関数）完了 |
+| 次のタスク | Phase 8: ダッシュボード/在庫一覧ページ実装 |
 | 最終更新 | 2025-12-04 |
 
-**詳細な進捗は TASKS.md の「進捗サマリー」「残タスク」セクションを参照**
+**詳細な進捗は TASKS.md の「Phase 8: ページ組み立て」セクションを参照**
 
 ---
 
