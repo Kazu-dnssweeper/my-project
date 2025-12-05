@@ -36,7 +36,18 @@ const itemSchema = z.object({
   notes: z.string().optional(),
 })
 
-type ItemFormData = z.infer<typeof itemSchema>
+interface ItemFormData {
+  item_code: string
+  name: string
+  model_number?: string
+  category_id?: string
+  unit: string
+  safety_stock?: number
+  reorder_point?: number
+  lead_time_days?: number
+  location?: string
+  notes?: string
+}
 
 interface InventoryFormProps {
   item?: Item | null
@@ -64,7 +75,7 @@ export function InventoryForm({
     watch,
     formState: { errors, isSubmitting },
   } = useForm<ItemFormData>({
-    resolver: zodResolver(itemSchema),
+    resolver: zodResolver(itemSchema) as never,
     defaultValues: {
       item_code: item?.item_code || '',
       name: item?.name || '',

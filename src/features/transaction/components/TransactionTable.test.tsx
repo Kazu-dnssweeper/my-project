@@ -68,9 +68,10 @@ describe('TransactionTable', () => {
   it('should render transaction data correctly', () => {
     render(<TransactionTable transactions={mockTransactions} />)
 
-    expect(screen.getByText('ITEM-001')).toBeInTheDocument()
-    expect(screen.getByText('テスト部品A')).toBeInTheDocument()
-    expect(screen.getByText('メイン倉庫')).toBeInTheDocument()
+    // ITEM-001 appears twice (2 transactions with same item)
+    expect(screen.getAllByText('ITEM-001')).toHaveLength(2)
+    expect(screen.getAllByText('テスト部品A')).toHaveLength(2)
+    expect(screen.getAllByText('メイン倉庫')).toHaveLength(2)
     expect(screen.getByText('通常入庫')).toBeInTheDocument()
   })
 

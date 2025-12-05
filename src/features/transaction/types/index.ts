@@ -6,6 +6,7 @@ export interface TransactionWithDetails extends Transaction {
   item_name: string
   item_code: string
   warehouse_name?: string
+  lot_number?: string
 }
 
 export interface TransactionFilters {
@@ -50,7 +51,12 @@ export interface ItemForTransaction {
   unit: string
 }
 
-export interface InventoryForTransaction extends Inventory {
+export interface InventoryForTransaction {
+  id: string
+  item_id: string
+  warehouse_id: string
+  lot_number: string | null
+  quantity: number
   item: ItemForTransaction
   warehouse: Warehouse
 }

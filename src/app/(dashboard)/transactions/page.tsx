@@ -10,16 +10,16 @@ import {
   TransactionFilters,
   useTransactions,
 } from '@/features/transaction'
-import type { TransactionFilters as TxFilters } from '@/features/transaction'
+import type { TransactionFilters as TransactionFiltersType } from '@/features/transaction/types'
 
 export default function TransactionsPage() {
-  const [filters, setFilters] = useState<TxFilters>({})
+  const [filters, setFilters] = useState<TransactionFiltersType>({})
   const [page, setPage] = useState(1)
   const limit = 20
 
   const { data, isLoading } = useTransactions(filters, page, limit)
 
-  const handleFiltersChange = useCallback((newFilters: TxFilters) => {
+  const handleFiltersChange = useCallback((newFilters: TransactionFiltersType) => {
     setFilters(newFilters)
     setPage(1)
   }, [])

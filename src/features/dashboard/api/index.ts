@@ -40,11 +40,18 @@ export async function getDashboardKPI(tenantId?: string): Promise<DashboardKPI> 
     }
   }
 
+  const kpiData = data as {
+    total_items?: number
+    total_stock?: number
+    low_stock_count?: number
+    today_transactions?: number
+  }
+
   return {
-    totalItems: data.total_items || 0,
-    totalStock: Number(data.total_stock) || 0,
-    lowStockCount: data.low_stock_count || 0,
-    todayTransactions: data.today_transactions || 0,
+    totalItems: kpiData.total_items || 0,
+    totalStock: Number(kpiData.total_stock) || 0,
+    lowStockCount: kpiData.low_stock_count || 0,
+    todayTransactions: kpiData.today_transactions || 0,
   }
 }
 

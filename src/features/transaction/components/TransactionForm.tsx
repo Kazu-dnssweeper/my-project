@@ -31,7 +31,16 @@ const transactionSchema = z.object({
   to_warehouse_id: z.string().optional(),
 })
 
-type TransactionFormData = z.infer<typeof transactionSchema>
+interface TransactionFormData {
+  item_id: string
+  warehouse_id: string
+  type: 'IN' | 'OUT' | 'MOVE'
+  sub_type?: string
+  quantity: number
+  lot_number?: string
+  note?: string
+  to_warehouse_id?: string
+}
 
 const subTypeOptions: Record<TransactionType, { value: TransactionSubType; label: string }[]> = {
   IN: [
@@ -78,7 +87,7 @@ export function TransactionForm({
     reset,
     formState: { errors, isSubmitting },
   } = useForm<TransactionFormData>({
-    resolver: zodResolver(transactionSchema),
+    resolver: zodResolver(transactionSchema) as never,
     defaultValues: {
       type: defaultType,
       quantity: 1,

@@ -125,7 +125,8 @@ describe('InventoryTable', () => {
     render(<InventoryTable items={mockItems} onSort={onSort} />)
 
     // Click on sortable header
-    screen.getByText('品番').click()
+    const header = screen.getByText('品番')
+    ;(header as HTMLElement).click()
     expect(onSort).toHaveBeenCalledWith('item_code')
   })
 
@@ -137,7 +138,7 @@ describe('InventoryTable', () => {
     const editButtons = document.querySelectorAll('button[class*="ghost"]')
     // Click the first edit button (second button in the actions column)
     if (editButtons[1]) {
-      editButtons[1].click()
+      ;(editButtons[1] as HTMLButtonElement).click()
       expect(onEdit).toHaveBeenCalledWith(mockItems[0])
     }
   })
