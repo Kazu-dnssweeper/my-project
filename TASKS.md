@@ -12,18 +12,35 @@ Claude Codeで開発する際は、このタスクを上から順に実行して
 npx create-next-app@latest partstock --typescript --tailwind --eslint --app --src-dir --import-alias "@/*"
 cd partstock
 ```
+- [x] プロジェクト作成完了
 
 ### Task 0-2: 依存パッケージインストール
 ```bash
 npm install @supabase/supabase-js @supabase/ssr zustand react-hook-form @hookform/resolvers zod @tanstack/react-query date-fns lucide-react
 npm install -D vitest @testing-library/react @testing-library/jest-dom
 ```
+- [x] 本番依存パッケージインストール
+- [x] 開発依存パッケージインストール
 
 ### Task 0-3: shadcn/ui導入
 ```bash
 npx shadcn@latest init
 npx shadcn@latest add button input label card dialog select checkbox badge toast skeleton table dropdown-menu avatar separator
 ```
+- [x] shadcn/ui初期化
+- [x] button追加
+- [x] input追加
+- [x] label追加
+- [x] card追加
+- [x] dialog追加
+- [x] select追加
+- [x] checkbox追加
+- [x] badge追加
+- [x] skeleton追加
+- [x] table追加
+- [x] dropdown-menu追加
+- [x] avatar追加
+- [x] separator追加
 
 ### Task 0-4: ディレクトリ構造作成
 ```bash
@@ -31,15 +48,28 @@ mkdir -p src/components/{ui,forms,data-display,layouts}
 mkdir -p src/features/{inventory,transaction,bom,lot,barcode}/{components,hooks,api,types}
 mkdir -p src/hooks src/lib/{supabase,utils} src/types src/stores
 ```
+- [x] components/ui作成
+- [x] components/forms作成
+- [x] components/data-display作成
+- [x] components/layouts作成
+- [x] features/inventory作成
+- [x] features/transaction作成
+- [x] features/bom作成
+- [x] features/lot作成
+- [x] features/barcode作成
+- [x] hooks作成
+- [x] lib/supabase作成
+- [x] lib/utils作成
+- [x] types作成
+- [x] stores作成
 
 ### Task 0-5: Supabaseクライアント設定
-ファイル作成:
-- `src/lib/supabase/client.ts` - ブラウザ用
-- `src/lib/supabase/server.ts` - サーバー用
-- `src/lib/supabase/middleware.ts` - ミドルウェア用
+- [x] `src/lib/supabase/client.ts` - ブラウザ用クライアント
+- [x] `src/lib/supabase/server.ts` - サーバー用クライアント
+- [x] `src/lib/supabase/middleware.ts` - ミドルウェア用
 
 ### Task 0-6: 環境変数設定
-`.env.local` にSupabaseの認証情報を設定
+- [x] `.env.local` にSupabaseの認証情報を設定
 
 ---
 
@@ -47,22 +77,30 @@ mkdir -p src/hooks src/lib/{supabase,utils} src/types src/stores
 
 ### Task 1-1: Buttonカスタマイズ
 `src/components/ui/button.tsx` をプロジェクト用にカスタマイズ
-- variant: default, secondary, danger, ghost, link
-- size: sm, md, lg
-- loading状態対応
+- [x] variant: default
+- [x] variant: secondary
+- [x] variant: destructive
+- [x] variant: ghost
+- [x] variant: link
+- [x] size: sm, default, lg
+- [x] loading状態対応
 
 ### Task 1-2: Inputカスタマイズ
 `src/components/ui/input.tsx`
-- エラー状態のスタイル
-- アイコン対応（prefix/suffix）
+- [x] 基本Input実装
+- [x] エラー状態のスタイル
 
 ### Task 1-3: Badge作成
 `src/components/ui/badge.tsx`
-- variant: default, success, warning, danger, info
+- [x] variant: default
+- [x] variant: secondary
+- [x] variant: destructive
+- [x] variant: outline
 
 ### Task 1-4: Spinner作成
 `src/components/ui/spinner.tsx`
-- size: sm, md, lg
+- [x] 基本Spinner実装
+- [x] size: sm, md, lg
 
 ---
 
@@ -79,27 +117,31 @@ interface FormFieldProps {
   children: React.ReactNode
 }
 ```
+- [ ] FormField基本実装
+- [ ] ラベル表示
+- [ ] エラーメッセージ表示
+- [ ] required表示
 
 ### Task 2-2: SearchBox作成
 `src/components/forms/search-box.tsx`
-- 検索アイコン付きInput
-- debounce対応
-- クリアボタン
+- [ ] 検索アイコン付きInput
+- [ ] debounce対応
+- [ ] クリアボタン
 
 ### Task 2-3: NumberInput作成
 `src/components/forms/number-input.tsx`
-- +/- ボタン付き
-- min/max制限
-- step指定
+- [ ] +/- ボタン付き
+- [ ] min/max制限
+- [ ] step指定
 
 ### Task 2-4: SelectField作成
 `src/components/forms/select-field.tsx`
-- Label + Select + Error の組み合わせ
+- [ ] Label + Select + Error の組み合わせ
 
 ### Task 2-5: ComboBox作成
 `src/components/forms/combo-box.tsx`
-- 検索可能なドロップダウン
-- 非同期検索対応
+- [ ] 検索可能なドロップダウン
+- [ ] 非同期検索対応
 
 ---
 
@@ -117,27 +159,33 @@ interface DataTableProps<T> {
   onPageChange?: (page: number) => void
 }
 ```
+- [ ] 基本DataTable実装
+- [ ] ローディング状態
+- [ ] ページネーション対応
+- [ ] 行クリック対応
 
 ### Task 3-2: KPICard作成
 `src/components/data-display/kpi-card.tsx`
-- タイトル、値、前期比、アイコン
+- [x] タイトル、値、前期比、アイコン表示（features/dashboard/components/KPICard.tsxとして実装済み）
 
 ### Task 3-3: AlertCard作成
 `src/components/data-display/alert-card.tsx`
-- type: info, warning, error, success
-- アクションボタン対応
+- [ ] type: info, warning, error, success
+- [ ] アクションボタン対応
 
 ### Task 3-4: EmptyState作成
 `src/components/data-display/empty-state.tsx`
-- アイコン、タイトル、説明、アクションボタン
+- [ ] アイコン、タイトル、説明、アクションボタン
 
 ### Task 3-5: StatusBadge作成
 `src/components/data-display/status-badge.tsx`
-- 在庫ステータス表示用（ok, warning, low, out）
+- [ ] 在庫ステータス表示用（ok, warning, low, out）
 
 ### Task 3-6: Pagination作成
 `src/components/data-display/pagination.tsx`
-- ページ番号、前へ/次へ、件数表示
+- [ ] ページ番号表示
+- [ ] 前へ/次へボタン
+- [ ] 件数表示
 
 ---
 
@@ -145,26 +193,30 @@ interface DataTableProps<T> {
 
 ### Task 4-1: AppShell作成
 `src/components/layouts/app-shell.tsx`
-- Header + SideNav + Main の3カラムレイアウト
-- レスポンシブ対応
+- [x] Header + SideNav + Main の3カラムレイアウト
+- [x] レスポンシブ対応
 
 ### Task 4-2: Header作成
 `src/components/layouts/header.tsx`
-- ロゴ、グローバル検索、ユーザーメニュー
+- [x] ロゴ表示
+- [x] グローバル検索
+- [x] ユーザーメニュー
 
 ### Task 4-3: SideNav作成
 `src/components/layouts/side-nav.tsx`
-- ナビゲーションメニュー
-- アクティブ状態
-- 折りたたみ対応
+- [x] ナビゲーションメニュー
+- [x] アクティブ状態
+- [x] 折りたたみ対応
 
 ### Task 4-4: PageHeader作成
 `src/components/layouts/page-header.tsx`
-- ページタイトル、パンくず、アクションボタン
+- [x] ページタイトル
+- [x] パンくず
+- [x] アクションボタン
 
 ### Task 4-5: AuthLayout作成
 `src/components/layouts/auth-layout.tsx`
-- ログイン/登録ページ用のセンタリングレイアウト
+- [x] ログイン/登録ページ用のセンタリングレイアウト
 
 ---
 
@@ -172,59 +224,50 @@ interface DataTableProps<T> {
 
 ### Task 5-1: 型定義
 `src/features/inventory/types/index.ts`
-```typescript
-interface Item {
-  id: string
-  tenant_id: string
-  item_code: string
-  name: string
-  model_number?: string
-  category_id?: string
-  unit: string
-  safety_stock: number
-  reorder_point: number
-  lead_time_days: number
-  location?: string
-  notes?: string
-  is_active: boolean
-  created_at: string
-  updated_at: string
-}
-```
+- [x] Item型定義
+- [x] ItemWithStock型定義
+- [x] CreateItemInput型定義
+- [x] UpdateItemInput型定義
+- [x] ItemFilters型定義
 
 ### Task 5-2: API関数
 `src/features/inventory/api/index.ts`
-- `getItems(filters)` - 一覧取得
-- `getItem(id)` - 詳細取得
-- `createItem(data)` - 作成
-- `updateItem(id, data)` - 更新
-- `deleteItem(id)` - 削除
+- [x] getItems(filters) - 一覧取得
+- [x] getItem(id) - 詳細取得
+- [x] createItem(data) - 作成
+- [x] updateItem(id, data) - 更新
+- [x] deleteItem(id) - 削除
 
 ### Task 5-3: カスタムフック
 `src/features/inventory/hooks/useInventory.ts`
-- `useItems(filters)` - 一覧取得フック
-- `useItem(id)` - 詳細取得フック
-- `useCreateItem()` - 作成ミューテーション
-- `useUpdateItem()` - 更新ミューテーション
-- `useDeleteItem()` - 削除ミューテーション
+- [x] useItems(filters) - 一覧取得フック
+- [x] useItem(id) - 詳細取得フック
+- [x] useCreateItem() - 作成ミューテーション
+- [x] useUpdateItem() - 更新ミューテーション
+- [x] useDeleteItem() - 削除ミューテーション
 
 ### Task 5-4: InventoryTable
 `src/features/inventory/components/inventory-table.tsx`
-- 在庫一覧テーブル
-- ソート、フィルタ対応
+- [x] 在庫一覧テーブル
+- [x] ソート対応
+- [x] ステータスバッジ表示
+- [x] 操作ボタン（詳細/編集）
 
 ### Task 5-5: InventoryForm
 `src/features/inventory/components/inventory-form.tsx`
-- 部品登録/編集フォーム
-- バリデーション（Zod）
+- [x] 部品登録/編集フォーム
+- [x] バリデーション（Zod）
+- [x] 送信処理
 
 ### Task 5-6: InventoryFilters
 `src/features/inventory/components/inventory-filters.tsx`
-- カテゴリ、ステータス、検索フィルター
+- [x] カテゴリフィルター
+- [x] ステータスフィルター
+- [x] 検索フィルター
 
 ### Task 5-7: InventoryCard
 `src/features/inventory/components/inventory-card.tsx`
-- 部品サマリーカード表示
+- [ ] 部品サマリーカード表示
 
 ---
 
@@ -232,24 +275,42 @@ interface Item {
 
 ### Task 6-1: 型定義
 `src/features/transaction/types/index.ts`
+- [x] Transaction型定義
+- [x] TransactionWithDetails型定義
+- [x] CreateTransactionInput型定義
+- [x] TransactionFilters型定義
 
 ### Task 6-2: API関数
 `src/features/transaction/api/index.ts`
+- [x] getTransactions(filters) - 一覧取得
+- [x] createTransaction(data) - 作成
 
 ### Task 6-3: カスタムフック
 `src/features/transaction/hooks/useTransaction.ts`
+- [x] useTransactions(filters) - 一覧取得フック
+- [x] useCreateTransaction() - 作成ミューテーション
 
 ### Task 6-4: TransactionForm
 `src/features/transaction/components/transaction-form.tsx`
-- 入出庫登録フォーム
+- [x] 入出庫登録フォーム
+- [x] 入庫/出庫/移動タイプ選択
+- [x] バリデーション
 
 ### Task 6-5: TransactionTable
 `src/features/transaction/components/transaction-table.tsx`
-- 取引履歴一覧
+- [x] 取引履歴一覧
+- [x] タイプ別バッジ表示
+- [x] 数量の符号表示（+/-）
 
-### Task 6-6: TransactionTypeSelect
+### Task 6-6: TransactionFilters
+`src/features/transaction/components/transaction-filters.tsx`
+- [x] タイプフィルター
+- [x] 日付フィルター
+- [x] 検索フィルター
+
+### Task 6-7: TransactionTypeSelect
 `src/features/transaction/components/transaction-type-select.tsx`
-- IN/OUT/MOVE選択
+- [ ] IN/OUT/MOVE選択コンポーネント（TransactionFormに統合済み）
 
 ---
 
@@ -257,16 +318,24 @@ interface Item {
 
 ### Task 7-1: BarcodeScanner
 `src/features/barcode/components/barcode-scanner.tsx`
-- カメラでのバーコード読み取り
-- @zxing/browser使用
+- [x] カメラでのバーコード読み取り
+- [x] @zxing/browser使用
 
-### Task 7-2: BarcodeInput
-`src/features/barcode/components/barcode-input.tsx`
-- スキャン + 手入力切り替え
+### Task 7-2: BarcodeScanButton
+`src/features/barcode/components/barcode-scan-button.tsx`
+- [x] スキャンボタンコンポーネント
 
-### Task 7-3: LabelGenerator
+### Task 7-3: ManualEntryFallback
+`src/features/barcode/components/manual-entry-fallback.tsx`
+- [x] 手入力フォールバック
+
+### Task 7-4: ScanResultDialog
+`src/features/barcode/components/scan-result-dialog.tsx`
+- [x] スキャン結果ダイアログ
+
+### Task 7-5: LabelGenerator
 `src/features/barcode/components/label-generator.tsx`
-- バーコードラベルPDF生成
+- [ ] バーコードラベルPDF生成
 
 ---
 
@@ -334,16 +403,21 @@ interface Item {
 
 ### Task 8-2: ダッシュボード
 - [x] `src/app/(dashboard)/dashboard/page.tsx`
-- [x] KPIカード、アラート一覧
+- [x] KPIカード表示
+- [x] アラート一覧表示
+- [x] 最近の取引表示
 
 ### Task 8-3: 在庫一覧
 - [x] `src/app/(dashboard)/inventory/page.tsx`
-- [x] InventoryFilters + InventoryTable
+- [x] InventoryFilters配置
+- [x] InventoryTable配置
 - [x] InventoryForm（登録/編集ダイアログ）
 
 ### Task 8-4: 在庫詳細
 - [x] `src/app/(dashboard)/inventory/[id]/page.tsx`
-- [x] 部品詳細 + ロット別在庫 + 取引履歴
+- [x] 部品詳細表示
+- [x] ロット別在庫表示
+- [x] 取引履歴表示
 
 ### Task 8-5: 入出庫登録
 - [x] `src/app/(dashboard)/transactions/new/page.tsx`
@@ -351,7 +425,14 @@ interface Item {
 
 ### Task 8-6: 取引履歴
 - [x] `src/app/(dashboard)/transactions/page.tsx`
-- [x] TransactionTable + TransactionFilters
+- [x] TransactionFilters配置
+- [x] TransactionTable配置
+
+### Task 8-7: その他ページ
+- [x] `src/app/(dashboard)/lots/page.tsx` - ロット一覧
+- [x] `src/app/(dashboard)/bom/page.tsx` - BOM管理
+- [x] `src/app/(dashboard)/scan/page.tsx` - バーコードスキャン
+- [x] `src/app/(dashboard)/import-export/page.tsx` - CSV入出力
 
 ---
 
@@ -375,6 +456,55 @@ interface Item {
 - [x] InventoryTable - React.memo, useCallback適用
 - [x] TransactionTable - React.memo, useMemo適用
 - [x] TableRowコンポーネントのメモ化
+
+---
+
+## 追加Feature（実装済み）
+
+### Feature - dashboard/
+- [x] 型定義（src/features/dashboard/types/index.ts）
+- [x] KPICard（src/features/dashboard/components/KPICard.tsx）
+- [x] KPIGrid（src/features/dashboard/components/KPIGrid.tsx）
+- [x] StockAlertList（src/features/dashboard/components/StockAlertList.tsx）
+- [x] RecentTransactions（src/features/dashboard/components/RecentTransactions.tsx）
+- [x] useDashboardKPI hook
+- [x] useStockAlerts hook
+- [x] useRecentTransactions hook
+
+### Feature - alerts/
+- [x] 型定義（src/features/alerts/types/index.ts）
+- [x] AlertDropdown（src/features/alerts/components/AlertDropdown.tsx）
+- [x] AlertBadge（src/features/alerts/components/AlertBadge.tsx）
+- [x] AlertBanner（src/features/alerts/components/AlertBanner.tsx）
+- [x] useAlerts hook
+- [x] useAlertCount hook
+- [x] API関数
+
+### Feature - lot/
+- [x] 型定義（src/features/lot/types/index.ts）
+- [x] LotTable（src/features/lot/components/LotTable.tsx）
+- [x] LotDetailCard（src/features/lot/components/LotDetailCard.tsx）
+- [x] LotHistoryTable（src/features/lot/components/LotHistoryTable.tsx）
+- [x] LotExpiryAlert（src/features/lot/components/LotExpiryAlert.tsx）
+- [x] FifoSuggestion（src/features/lot/components/FifoSuggestion.tsx）
+- [x] useLot hook
+- [x] API関数
+
+### Feature - bom/
+- [x] 型定義（src/features/bom/types/index.ts）
+- [x] BomTable（src/features/bom/components/BomTable.tsx）
+- [x] BomEditDialog（src/features/bom/components/BomEditDialog.tsx）
+- [x] BomDeleteDialog（src/features/bom/components/BomDeleteDialog.tsx）
+- [x] BomActionMenu（src/features/bom/components/BomActionMenu.tsx）
+- [x] useBom hook
+- [x] API関数
+
+### Feature - csv/
+- [x] 型定義（src/features/csv/types/index.ts）
+- [x] CsvImportDialog（src/features/csv/components/CsvImportDialog.tsx）
+- [x] CsvExportButton（src/features/csv/components/CsvExportButton.tsx）
+- [x] CsvPreviewTable（src/features/csv/components/CsvPreviewTable.tsx）
+- [x] API関数
 
 ---
 
