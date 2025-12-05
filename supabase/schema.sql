@@ -321,3 +321,213 @@ SELECT
 FROM items i
 LEFT JOIN inventory inv ON i.id = inv.item_id AND inv.quantity > 0
 GROUP BY i.id, i.tenant_id, i.item_code, i.name, i.unit, i.safety_stock, i.reorder_point;
+
+-- ============================================
+-- 関数：新規ユーザー処理
+-- auth.usersに新規ユーザー作成時に自動実行
+-- ============================================
+CREATE OR REPLACE FUNCTION handle_new_user()
+RETURNS TRIGGER AS $$
+DECLARE
+  new_tenant_id UUID;
+  user_name TEXT;
+  invited_tenant_id UUID;
+BEGIN
+  -- メタデータから名前を取得（Google OAuth等）
+  user_name := COALESCE(
+    NEW.raw_user_meta_data->>'full_name',
+    NEW.raw_user_meta_data->>'name',
+    split_part(NEW.email, '@', 1)
+  );
+
+  -- 招待経由の場合、メタデータからtenant_idを取得
+  invited_tenant_id := (NEW.raw_user_meta_data->>'tenant_id')::UUID;
+
+  IF invited_tenant_id IS NOT NULL THEN
+    -- 招待されたテナントに参加
+    INSERT INTO public.users (id, tenant_id, email, name, role)
+    VALUES (
+      NEW.id,
+      invited_tenant_id,
+      NEW.email,
+      user_name,
+      COALESCE(NEW.raw_user_meta_data->>'role', 'member')
+    );
+  ELSE
+    -- 新規テナント作成
+    INSERT INTO public.tenants (name)
+    VALUES (user_name || 'の組織')
+    RETURNING id INTO new_tenant_id;
+
+    -- ユーザーをadminとして登録
+    INSERT INTO public.users (id, tenant_id, email, name, role)
+    VALUES (
+      NEW.id,
+      new_tenant_id,
+      NEW.email,
+      user_name,
+      'admin'
+    );
+
+    -- デフォルト倉庫を作成
+    INSERT INTO public.warehouses (tenant_id, name, code, is_default)
+    VALUES (new_tenant_id, 'メイン倉庫', 'MAIN', TRUE);
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- auth.usersへのトリガー設定
+CREATE OR REPLACE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW
+  EXECUTE FUNCTION handle_new_user();
+
+-- ============================================
+-- 関数：ダッシュボードKPI取得
+-- ============================================
+CREATE OR REPLACE FUNCTION get_dashboard_kpi(p_tenant_id UUID)
+RETURNS JSON AS $$
+DECLARE
+  result JSON;
+BEGIN
+  SELECT json_build_object(
+    -- 総部品数
+    'total_items', (
+      SELECT COUNT(*) FROM items
+      WHERE tenant_id = p_tenant_id AND is_active = TRUE
+    ),
+    -- 総在庫金額（概算）
+    'total_inventory_value', (
+      SELECT COALESCE(SUM(inv.quantity * inv.unit_cost), 0)
+      FROM inventory inv
+      JOIN items i ON inv.item_id = i.id
+      WHERE inv.tenant_id = p_tenant_id AND inv.quantity > 0
+    ),
+    -- 発注点以下のアイテム数
+    'low_stock_count', (
+      SELECT COUNT(DISTINCT i.id)
+      FROM items i
+      LEFT JOIN inventory inv ON i.id = inv.item_id
+      WHERE i.tenant_id = p_tenant_id
+        AND i.is_active = TRUE
+        AND i.reorder_point > 0
+      GROUP BY i.id, i.reorder_point
+      HAVING COALESCE(SUM(inv.quantity), 0) <= i.reorder_point
+    ),
+    -- 在庫切れアイテム数
+    'out_of_stock_count', (
+      SELECT COUNT(*)
+      FROM items i
+      WHERE i.tenant_id = p_tenant_id
+        AND i.is_active = TRUE
+        AND NOT EXISTS (
+          SELECT 1 FROM inventory inv
+          WHERE inv.item_id = i.id AND inv.quantity > 0
+        )
+    ),
+    -- 今日の入庫数
+    'today_in_count', (
+      SELECT COUNT(*) FROM transactions
+      WHERE tenant_id = p_tenant_id
+        AND type = 'IN'
+        AND DATE(transacted_at) = CURRENT_DATE
+    ),
+    -- 今日の出庫数
+    'today_out_count', (
+      SELECT COUNT(*) FROM transactions
+      WHERE tenant_id = p_tenant_id
+        AND type = 'OUT'
+        AND DATE(transacted_at) = CURRENT_DATE
+    ),
+    -- 今月の入庫数
+    'month_in_count', (
+      SELECT COUNT(*) FROM transactions
+      WHERE tenant_id = p_tenant_id
+        AND type = 'IN'
+        AND DATE_TRUNC('month', transacted_at) = DATE_TRUNC('month', CURRENT_DATE)
+    ),
+    -- 今月の出庫数
+    'month_out_count', (
+      SELECT COUNT(*) FROM transactions
+      WHERE tenant_id = p_tenant_id
+        AND type = 'OUT'
+        AND DATE_TRUNC('month', transacted_at) = DATE_TRUNC('month', CURRENT_DATE)
+    )
+  ) INTO result;
+
+  RETURN result;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- ============================================
+-- 関数：発注点アラート取得
+-- ============================================
+CREATE OR REPLACE FUNCTION get_reorder_alerts(p_tenant_id UUID)
+RETURNS TABLE (
+  item_id UUID,
+  item_code VARCHAR,
+  item_name VARCHAR,
+  unit VARCHAR,
+  current_quantity DECIMAL,
+  reorder_point DECIMAL,
+  safety_stock DECIMAL,
+  status TEXT
+) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT
+    i.id AS item_id,
+    i.item_code,
+    i.name AS item_name,
+    i.unit,
+    COALESCE(SUM(inv.quantity), 0) AS current_quantity,
+    i.reorder_point,
+    i.safety_stock,
+    CASE
+      WHEN COALESCE(SUM(inv.quantity), 0) = 0 THEN 'out_of_stock'
+      WHEN COALESCE(SUM(inv.quantity), 0) <= i.reorder_point THEN 'reorder'
+      WHEN COALESCE(SUM(inv.quantity), 0) <= i.safety_stock THEN 'warning'
+      ELSE 'ok'
+    END AS status
+  FROM items i
+  LEFT JOIN inventory inv ON i.id = inv.item_id AND inv.quantity > 0
+  WHERE i.tenant_id = p_tenant_id
+    AND i.is_active = TRUE
+    AND i.reorder_point > 0
+  GROUP BY i.id, i.item_code, i.name, i.unit, i.reorder_point, i.safety_stock
+  HAVING COALESCE(SUM(inv.quantity), 0) <= i.safety_stock
+  ORDER BY
+    CASE
+      WHEN COALESCE(SUM(inv.quantity), 0) = 0 THEN 1
+      WHEN COALESCE(SUM(inv.quantity), 0) <= i.reorder_point THEN 2
+      ELSE 3
+    END,
+    i.item_code;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- ============================================
+-- RLSポリシー追加：新規ユーザー登録用
+-- ============================================
+
+-- tenantsテーブル：認証済みユーザーは自分のテナントにアクセス可能
+CREATE POLICY "Users can view own tenant" ON tenants
+  FOR SELECT USING (
+    id = (SELECT tenant_id FROM users WHERE id = auth.uid())
+  );
+
+-- usersテーブル：新規ユーザーが自分自身を参照できるようにする
+DROP POLICY IF EXISTS "Users can access own tenant data" ON users;
+
+CREATE POLICY "Users can view own tenant members" ON users
+  FOR SELECT USING (
+    tenant_id = (SELECT tenant_id FROM users WHERE id = auth.uid())
+  );
+
+CREATE POLICY "Users can update own profile" ON users
+  FOR UPDATE USING (id = auth.uid());
+
+-- Service role用：handle_new_user関数がユーザーを作成できるようにする
+-- (SECURITY DEFINER関数なので追加ポリシー不要)
