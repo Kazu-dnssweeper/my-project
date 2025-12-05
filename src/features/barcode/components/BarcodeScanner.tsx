@@ -12,6 +12,38 @@ interface BarcodeScannerProps {
   onError?: (error: Error) => void
   onClose?: () => void
   formats?: ('QR_CODE' | 'CODE_128' | 'EAN_13' | 'CODE_39')[]
+  enableVibration?: boolean
+  enableFlash?: boolean
+  enableSound?: boolean
+  continuousScan?: boolean
+}
+
+// 成功時のバイブレーション
+function vibrateOnScan() {
+  if ('vibrate' in navigator) {
+    navigator.vibrate(100) // 100msのバイブレーション
+  }
+}
+
+// 成功音の再生
+function playScanSound() {
+  try {
+    const audioContext = new (window.AudioContext || (window as typeof window & { webkitAudioContext: typeof AudioContext }).webkitAudioContext)()
+    const oscillator = audioContext.createOscillator()
+    const gainNode = audioContext.createGain()
+
+    oscillator.connect(gainNode)
+    gainNode.connect(audioContext.destination)
+
+    oscillator.frequency.value = 1000 // 1000Hz
+    oscillator.type = 'sine'
+    gainNode.gain.value = 0.1
+
+    oscillator.start()
+    oscillator.stop(audioContext.currentTime + 0.1) // 100ms
+  } catch (e) {
+    // Audio not supported
+  }
 }
 
 export function BarcodeScanner({
@@ -19,13 +51,19 @@ export function BarcodeScanner({
   onError,
   onClose,
   formats = ['QR_CODE', 'CODE_128', 'EAN_13', 'CODE_39'],
+  enableVibration = true,
+  enableFlash = true,
+  enableSound = false,
+  continuousScan = false,
 }: BarcodeScannerProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const readerRef = useRef<BrowserMultiFormatReader | null>(null)
+  const lastScannedRef = useRef<string>('')
   const [isLoading, setIsLoading] = useState(true)
   const [cameras, setCameras] = useState<MediaDeviceInfo[]>([])
   const [selectedCamera, setSelectedCamera] = useState<string>('')
   const [error, setError] = useState<string | null>(null)
+  const [showFlash, setShowFlash] = useState(false)
 
   useEffect(() => {
     const hints = new Map()
@@ -78,6 +116,21 @@ export function BarcodeScanner({
       .decodeFromVideoDevice(selectedCamera, videoRef.current, (result, err) => {
         if (result) {
           const code = result.getText()
+
+          // 連続スキャンモードでない場合、同じコードは無視
+          if (!continuousScan && lastScannedRef.current === code) {
+            return
+          }
+          lastScannedRef.current = code
+
+          // フィードバック
+          if (enableVibration) vibrateOnScan()
+          if (enableSound) playScanSound()
+          if (enableFlash) {
+            setShowFlash(true)
+            setTimeout(() => setShowFlash(false), 150)
+          }
+
           onScan(code)
         }
         // エラーは読み取り失敗時に継続的に発生するので無視
@@ -161,6 +214,11 @@ export function BarcodeScanner({
             <div className="absolute -bottom-1 -right-1 w-6 h-6 border-b-4 border-r-4 border-primary rounded-br-lg" />
           </div>
         </div>
+
+        {/* スキャン成功時のフラッシュ */}
+        {showFlash && (
+          <div className="absolute inset-0 bg-green-500/30 pointer-events-none animate-pulse" />
+        )}
       </div>
 
       <div className="p-3 bg-black text-white text-center text-sm">
