@@ -1,6 +1,6 @@
 'use client'
 
-import * as React from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
 import {
   Table,
@@ -50,36 +50,45 @@ export function DataTable<T>({
   keyExtractor,
   className,
 }: DataTableProps<T>) {
-  const handleSort = (columnId: string) => {
-    if (!onSort) return
+  const handleSort = useCallback(
+    (columnId: string) => {
+      if (!onSort) return
 
-    const newDirection =
-      sort?.column === columnId && sort.direction === 'asc' ? 'desc' : 'asc'
+      const newDirection =
+        sort?.column === columnId && sort.direction === 'asc' ? 'desc' : 'asc'
 
-    onSort({ column: columnId, direction: newDirection })
-  }
+      onSort({ column: columnId, direction: newDirection })
+    },
+    [onSort, sort]
+  )
 
-  const renderSortIcon = (columnId: string) => {
-    if (sort?.column !== columnId) {
-      return <ArrowUpDown className="ml-2 h-4 w-4" />
-    }
-    return sort.direction === 'asc' ? (
-      <ArrowUp className="ml-2 h-4 w-4" />
-    ) : (
-      <ArrowDown className="ml-2 h-4 w-4" />
-    )
-  }
+  const getSortIcon = useCallback(
+    (columnId: string) => {
+      if (sort?.column !== columnId) {
+        return <ArrowUpDown className="ml-2 h-4 w-4" />
+      }
+      return sort.direction === 'asc' ? (
+        <ArrowUp className="ml-2 h-4 w-4" />
+      ) : (
+        <ArrowDown className="ml-2 h-4 w-4" />
+      )
+    },
+    [sort]
+  )
 
-  const getCellValue = (row: T, column: ColumnDef<T>): React.ReactNode => {
-    if (column.cell) {
-      return column.cell(row)
-    }
-    if (column.accessorKey) {
-      const value = row[column.accessorKey]
-      return value as React.ReactNode
-    }
-    return null
-  }
+  const getCellValue = useCallback(
+    (row: T, column: ColumnDef<T>): React.ReactNode => {
+      if (column.cell) {
+        return column.cell(row)
+      }
+      if (column.accessorKey) {
+        const value = row[column.accessorKey]
+        return value as React.ReactNode
+      }
+      return null
+    },
+    []
+  )
 
   if (isLoading) {
     return (
@@ -152,7 +161,7 @@ export function DataTable<T>({
                     onClick={() => handleSort(column.id)}
                   >
                     {column.header}
-                    {renderSortIcon(column.id)}
+                    {getSortIcon(column.id)}
                   </button>
                 ) : (
                   column.header

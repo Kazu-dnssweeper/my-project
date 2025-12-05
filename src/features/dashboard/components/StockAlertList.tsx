@@ -1,5 +1,6 @@
 'use client'
 
+import { memo } from 'react'
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -83,7 +84,14 @@ export function StockAlertList({ limit = 5 }: StockAlertListProps) {
   )
 }
 
-function AlertItem({ alert }: { alert: StockAlert }) {
+interface AlertItemProps {
+  alert: StockAlert
+}
+
+const AlertItem = memo(function AlertItem({ alert }: AlertItemProps) {
+  const badgeVariant = alert.severity === 'critical' ? 'destructive' : 'warning'
+  const badgeText = alert.severity === 'critical' ? '危険' : '注意'
+
   return (
     <Link
       href={`/inventory/${alert.item.id}`}
@@ -92,15 +100,13 @@ function AlertItem({ alert }: { alert: StockAlert }) {
       <div className="min-w-0 flex-1">
         <p className="text-sm font-medium truncate">{alert.item.name}</p>
         <p className="text-xs text-muted-foreground">
-          {alert.item.item_code} | 現在: {alert.currentStock} / 発注点: {alert.reorderPoint}
+          {alert.item.item_code} | 現在: {alert.currentStock} / 発注点:{' '}
+          {alert.reorderPoint}
         </p>
       </div>
-      <Badge
-        variant={alert.severity === 'critical' ? 'destructive' : 'warning'}
-        className="ml-2 shrink-0"
-      >
-        {alert.severity === 'critical' ? '危険' : '注意'}
+      <Badge variant={badgeVariant} className="ml-2 shrink-0">
+        {badgeText}
       </Badge>
     </Link>
   )
-}
+})

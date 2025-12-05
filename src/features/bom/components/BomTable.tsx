@@ -1,5 +1,6 @@
 'use client'
 
+import { memo, useMemo, useCallback } from 'react'
 import {
   Table,
   TableBody,
@@ -10,7 +11,7 @@ import {
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
-import { format } from 'date-fns'
+import { formatDate } from '@/lib/date'
 import { useBoms } from '../hooks/useBom'
 import { BomActionMenu } from './BomActionMenu'
 import type { BomWithItems } from '../types'
@@ -22,9 +23,17 @@ interface BomTableProps {
 export function BomTable({ parentItemId }: BomTableProps) {
   const { data: boms, isLoading, refetch } = useBoms()
 
-  const filteredBoms = parentItemId
-    ? boms?.filter((b) => b.parent_item_id === parentItemId)
-    : boms
+  const filteredBoms = useMemo(
+    () =>
+      parentItemId
+        ? boms?.filter((b) => b.parent_item_id === parentItemId)
+        : boms,
+    [boms, parentItemId]
+  )
+
+  const handleUpdate = useCallback(() => {
+    refetch()
+  }, [refetch])
 
   if (isLoading) {
     return (
@@ -58,24 +67,26 @@ export function BomTable({ parentItemId }: BomTableProps) {
       </TableHeader>
       <TableBody>
         {filteredBoms.map((bom) => (
-          <BomTableRow key={bom.id} bom={bom} onUpdate={() => refetch()} />
+          <BomTableRow key={bom.id} bom={bom} onUpdate={handleUpdate} />
         ))}
       </TableBody>
     </Table>
   )
 }
 
-function BomTableRow({
-  bom,
-  onUpdate,
-}: {
+interface BomTableRowProps {
   bom: BomWithItems
   onUpdate: () => void
-}) {
-  const formatDate = (date: string | null) => {
-    if (!date) return '-'
-    return format(new Date(date), 'yyyy/MM/dd')
-  }
+}
+
+const BomTableRow = memo(function BomTableRow({
+  bom,
+  onUpdate,
+}: BomTableRowProps) {
+  const effectivePeriod = useMemo(
+    () => `${formatDate(bom.effective_from)} 〜 ${formatDate(bom.effective_to)}`,
+    [bom.effective_from, bom.effective_to]
+  )
 
   return (
     <TableRow>
@@ -100,13 +111,11 @@ function BomTableRow({
         <Badge variant="secondary">{bom.version}</Badge>
       </TableCell>
       <TableCell>
-        <span className="text-sm">
-          {formatDate(bom.effective_from)} 〜 {formatDate(bom.effective_to)}
-        </span>
+        <span className="text-sm">{effectivePeriod}</span>
       </TableCell>
       <TableCell>
         <BomActionMenu bom={bom} onSuccess={onUpdate} />
       </TableCell>
     </TableRow>
   )
-}
+})

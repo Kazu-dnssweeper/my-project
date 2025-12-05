@@ -1,7 +1,5 @@
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
 import type { Item } from '@/types'
-
-const supabase = createClient()
 
 export async function findItemByCode(code: string): Promise<Item | null> {
   // まず item_code で検索

@@ -1,7 +1,6 @@
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
+import { logger } from '@/lib/logger'
 import type { DashboardKPI, StockAlert, RecentTransaction } from '../types'
-
-const supabase = createClient()
 
 export async function getDashboardKPI(tenantId?: string): Promise<DashboardKPI> {
   // tenantIdが指定されていない場合は現在のユーザーのテナントを取得
@@ -31,7 +30,7 @@ export async function getDashboardKPI(tenantId?: string): Promise<DashboardKPI> 
     .single()
 
   if (error || !data) {
-    console.error('Failed to get dashboard KPI:', error)
+    logger.error('Failed to get dashboard KPI', error, { tenantId: targetTenantId })
     return {
       totalItems: 0,
       totalStock: 0,
@@ -77,7 +76,7 @@ export async function getStockAlerts(limit = 10, tenantId?: string): Promise<Sto
     .rpc('get_stock_alerts', { p_tenant_id: targetTenantId, p_limit: limit })
 
   if (error || !data) {
-    console.error('Failed to get stock alerts:', error)
+    logger.error('Failed to get stock alerts', error, { tenantId: targetTenantId, limit })
     return []
   }
 

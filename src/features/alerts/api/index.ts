@@ -1,8 +1,7 @@
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
+import { logger } from '@/lib/logger'
 import type { Alert, AlertCount } from '../types'
 import type { Item } from '@/types'
-
-const supabase = createClient()
 
 export async function getAlerts(): Promise<Alert[]> {
   // 在庫アラートを動的に生成

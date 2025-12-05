@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import dynamic from 'next/dynamic'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -8,11 +9,29 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { Spinner } from '@/components/ui/spinner'
 import { ScanBarcode } from 'lucide-react'
-import { BarcodeScanner } from './BarcodeScanner'
 import { ScanResultDialog } from './ScanResultDialog'
 import { findItemByCode } from '../api'
+import { logger } from '@/lib/logger'
 import type { ScanResult } from '../types'
+
+// 動的インポートでBarcodeScannerを遅延ロード
+// @zxing/libraryは大きいライブラリなので、必要時のみロード
+const BarcodeScanner = dynamic(
+  () => import('./BarcodeScanner').then((mod) => mod.BarcodeScanner),
+  {
+    loading: () => (
+      <div className="flex items-center justify-center h-64 bg-black rounded-lg">
+        <div className="text-center text-white">
+          <Spinner size="lg" className="mb-2 text-white" />
+          <p className="text-sm">スキャナーを読み込み中...</p>
+        </div>
+      </div>
+    ),
+    ssr: false,
+  }
+)
 
 interface BarcodeScanButtonProps {
   onScan?: (result: ScanResult) => void
@@ -50,7 +69,7 @@ export function BarcodeScanButton({
       setResultOpen(true)
       onScan?.(result)
     } catch (error) {
-      console.error('Search error:', error)
+      logger.error('Barcode search error', error)
     } finally {
       setIsSearching(false)
     }
