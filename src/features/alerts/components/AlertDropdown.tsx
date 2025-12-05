@@ -1,5 +1,6 @@
 'use client'
 
+import { memo, useMemo } from 'react'
 import Link from 'next/link'
 import {
   DropdownMenu,
@@ -20,7 +21,7 @@ import type { Alert } from '../types'
 export function AlertDropdown() {
   const { data: alerts, isLoading } = useAlerts()
 
-  const displayAlerts = alerts?.slice(0, 5) || []
+  const displayAlerts = useMemo(() => alerts?.slice(0, 5) || [], [alerts])
 
   return (
     <DropdownMenu>
@@ -80,40 +81,38 @@ export function AlertDropdown() {
   )
 }
 
-function AlertDropdownItem({ alert }: { alert: Alert }) {
-  const getIcon = () => {
+interface AlertDropdownItemProps {
+  alert: Alert
+}
+
+const AlertDropdownItem = memo(function AlertDropdownItem({
+  alert,
+}: AlertDropdownItemProps) {
+  const icon = useMemo(() => {
+    const colorClass =
+      alert.severity === 'critical' ? 'text-red-500' : 'text-yellow-500'
+
     switch (alert.type) {
       case 'low_stock':
       case 'critical_stock':
-        return (
-          <Package
-            className={
-              alert.severity === 'critical' ? 'text-red-500' : 'text-yellow-500'
-            }
-          />
-        )
+        return <Package className={colorClass} />
       case 'expiry_warning':
       case 'expiry_critical':
-        return (
-          <Calendar
-            className={
-              alert.severity === 'critical' ? 'text-red-500' : 'text-yellow-500'
-            }
-          />
-        )
+        return <Calendar className={colorClass} />
       default:
         return <AlertTriangle className="text-muted-foreground" />
     }
-  }
+  }, [alert.type, alert.severity])
+
+  const badgeVariant = alert.severity === 'critical' ? 'destructive' : 'warning'
+  const badgeText = alert.severity === 'critical' ? '危険' : '注意'
+  const href = alert.itemId ? `/inventory/${alert.itemId}` : '/inventory'
 
   return (
     <DropdownMenuItem asChild>
-      <Link
-        href={alert.itemId ? `/inventory/${alert.itemId}` : '/inventory'}
-        className="flex items-start gap-3 p-2"
-      >
+      <Link href={href} className="flex items-start gap-3 p-2">
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted">
-          {getIcon()}
+          {icon}
         </div>
         <div className="flex-1 space-y-1 min-w-0">
           <p className="text-sm font-medium leading-none truncate">
@@ -123,13 +122,10 @@ function AlertDropdownItem({ alert }: { alert: Alert }) {
             {alert.message}
           </p>
         </div>
-        <Badge
-          variant={alert.severity === 'critical' ? 'destructive' : 'warning'}
-          className="shrink-0"
-        >
-          {alert.severity === 'critical' ? '危険' : '注意'}
+        <Badge variant={badgeVariant} className="shrink-0">
+          {badgeText}
         </Badge>
       </Link>
     </DropdownMenuItem>
   )
-}
+})

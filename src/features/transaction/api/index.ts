@@ -1,4 +1,5 @@
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
+import { logger } from '@/lib/logger'
 import type { Transaction, Inventory } from '@/types'
 import type {
   TransactionWithDetails,
@@ -6,8 +7,6 @@ import type {
   CreateTransactionData,
   InventoryForTransaction,
 } from '../types'
-
-const supabase = createClient()
 
 export async function getTransactions(
   filters?: TransactionFilters,
@@ -57,7 +56,7 @@ export async function getTransactions(
     .range((page - 1) * limit, page * limit - 1)
 
   if (error) {
-    console.error('Failed to get transactions:', error)
+    logger.error('Failed to get transactions', error, { filters })
     return { data: [], total: 0 }
   }
 
@@ -89,7 +88,7 @@ export async function getItemTransactions(
     .limit(limit)
 
   if (error) {
-    console.error('Failed to get item transactions:', error)
+    logger.error('Failed to get item transactions', error, { itemId })
     return []
   }
 
@@ -194,7 +193,7 @@ export async function createTransaction(
     .single()
 
   if (error) {
-    console.error('Failed to create transaction:', error)
+    logger.error('Failed to create transaction', error, { data })
     throw new Error(error.message)
   }
 
@@ -220,7 +219,7 @@ export async function getInventoriesForTransaction(
   const { data, error } = await query.order('received_date', { ascending: true })
 
   if (error) {
-    console.error('Failed to get inventories:', error)
+    logger.error('Failed to get inventories for transaction', error, { itemId })
     return []
   }
 
@@ -248,7 +247,7 @@ export async function updateTransaction(
     .single()
 
   if (error) {
-    console.error('Failed to update transaction:', error)
+    logger.error('Failed to update transaction', error, { id, data })
     throw new Error(error.message)
   }
 
@@ -262,7 +261,7 @@ export async function deleteTransaction(id: string): Promise<void> {
     .eq('id', id)
 
   if (error) {
-    console.error('Failed to delete transaction:', error)
+    logger.error('Failed to delete transaction', error, { id })
     throw new Error(error.message)
   }
 }

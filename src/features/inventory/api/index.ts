@@ -1,8 +1,7 @@
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
+import { logger } from '@/lib/logger'
 import type { Item, Category, Warehouse, Inventory } from '@/types'
 import type { ItemWithStock, ItemFilters, CreateItemData, UpdateItemData } from '../types'
-
-const supabase = createClient()
 
 export async function getItems(
   filters?: ItemFilters,
@@ -33,7 +32,7 @@ export async function getItems(
     .range((page - 1) * limit, page * limit - 1)
 
   if (error) {
-    console.error('Failed to get items:', error)
+    logger.error('Failed to get items', error)
     return { data: [], total: 0 }
   }
 
@@ -79,7 +78,7 @@ export async function getItem(id: string): Promise<Item | null> {
     .single()
 
   if (error) {
-    console.error('Failed to get item:', error)
+    logger.error('Failed to get item', error, { itemId: id })
     return null
   }
 
@@ -98,7 +97,7 @@ export async function getItemInventories(itemId: string): Promise<Inventory[]> {
     .order('received_date', { ascending: true })
 
   if (error) {
-    console.error('Failed to get inventories:', error)
+    logger.error('Failed to get inventories', error, { itemId })
     return []
   }
 
@@ -125,7 +124,7 @@ export async function createItem(data: CreateItemData): Promise<Item | null> {
     .single()
 
   if (error) {
-    console.error('Failed to create item:', error)
+    logger.error('Failed to create item', error, { data })
     throw new Error(error.message)
   }
 
@@ -141,7 +140,7 @@ export async function updateItem(id: string, data: Partial<CreateItemData>): Pro
     .single()
 
   if (error) {
-    console.error('Failed to update item:', error)
+    logger.error('Failed to update item', error, { id, data })
     throw new Error(error.message)
   }
 
@@ -155,7 +154,7 @@ export async function deleteItem(id: string): Promise<void> {
     .eq('id', id)
 
   if (error) {
-    console.error('Failed to delete item:', error)
+    logger.error('Failed to delete item', error, { id })
     throw new Error(error.message)
   }
 }
@@ -167,7 +166,7 @@ export async function getCategories(): Promise<Category[]> {
     .order('name')
 
   if (error) {
-    console.error('Failed to get categories:', error)
+    logger.error('Failed to get categories', error)
     return []
   }
 
@@ -181,7 +180,7 @@ export async function getWarehouses(): Promise<Warehouse[]> {
     .order('name')
 
   if (error) {
-    console.error('Failed to get warehouses:', error)
+    logger.error('Failed to get warehouses', error)
     return []
   }
 

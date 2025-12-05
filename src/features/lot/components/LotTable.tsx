@@ -1,5 +1,6 @@
 'use client'
 
+import { memo, useMemo } from 'react'
 import Link from 'next/link'
 import {
   Table,
@@ -11,7 +12,7 @@ import {
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
-import { format } from 'date-fns'
+import { formatDate } from '@/lib/date'
 import { useLots } from '../hooks/useLot'
 import type { LotSummary } from '../types'
 
@@ -58,11 +59,41 @@ export function LotTable() {
   )
 }
 
-function LotRow({ lot }: { lot: LotSummary }) {
-  const formatDate = (date: string | null) => {
-    if (!date) return '-'
-    return format(new Date(date), 'yyyy/MM/dd')
-  }
+interface LotRowProps {
+  lot: LotSummary
+}
+
+const LotRow = memo(function LotRow({ lot }: LotRowProps) {
+  const formattedReceivedDate = useMemo(
+    () => formatDate(lot.received_date),
+    [lot.received_date]
+  )
+
+  const formattedExpiryDate = useMemo(
+    () => formatDate(lot.expiry_date),
+    [lot.expiry_date]
+  )
+
+  const expiryText = useMemo(() => {
+    if (lot.daysUntilExpiry === null || !lot.expiry_date) return null
+    return lot.daysUntilExpiry < 0
+      ? `${Math.abs(lot.daysUntilExpiry)}日経過`
+      : `残り${lot.daysUntilExpiry}日`
+  }, [lot.daysUntilExpiry, lot.expiry_date])
+
+  const expiryClassName = lot.isExpired
+    ? 'text-destructive'
+    : lot.isExpiringSoon
+      ? 'text-yellow-600'
+      : ''
+
+  const statusBadge = lot.isExpired ? (
+    <Badge variant="destructive">期限切れ</Badge>
+  ) : lot.isExpiringSoon ? (
+    <Badge variant="warning">期限間近</Badge>
+  ) : (
+    <Badge variant="success">正常</Badge>
+  )
 
   return (
     <TableRow>
@@ -84,34 +115,12 @@ function LotRow({ lot }: { lot: LotSummary }) {
       <TableCell className="text-right">
         {lot.quantity.toLocaleString()} {lot.item.unit}
       </TableCell>
-      <TableCell>{formatDate(lot.received_date)}</TableCell>
-      <TableCell
-        className={
-          lot.isExpired
-            ? 'text-destructive'
-            : lot.isExpiringSoon
-              ? 'text-yellow-600'
-              : ''
-        }
-      >
-        {formatDate(lot.expiry_date)}
-        {lot.daysUntilExpiry !== null && lot.expiry_date && (
-          <span className="text-xs ml-1">
-            ({lot.daysUntilExpiry < 0
-              ? `${Math.abs(lot.daysUntilExpiry)}日経過`
-              : `残り${lot.daysUntilExpiry}日`})
-          </span>
-        )}
+      <TableCell>{formattedReceivedDate}</TableCell>
+      <TableCell className={expiryClassName}>
+        {formattedExpiryDate}
+        {expiryText && <span className="text-xs ml-1">({expiryText})</span>}
       </TableCell>
-      <TableCell>
-        {lot.isExpired ? (
-          <Badge variant="destructive">期限切れ</Badge>
-        ) : lot.isExpiringSoon ? (
-          <Badge variant="warning">期限間近</Badge>
-        ) : (
-          <Badge variant="success">正常</Badge>
-        )}
-      </TableCell>
+      <TableCell>{statusBadge}</TableCell>
     </TableRow>
   )
-}
+})

@@ -18,6 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Spinner } from '@/components/ui/spinner'
 import { useItems, useWarehouses } from '@/features/inventory'
 import { useCreateTransaction } from '../hooks/useTransactions'
+import { logger } from '@/lib/logger'
 import type { TransactionType, TransactionSubType } from '../types'
 
 const transactionSchema = z.object({
@@ -31,16 +32,7 @@ const transactionSchema = z.object({
   to_warehouse_id: z.string().optional(),
 })
 
-interface TransactionFormData {
-  item_id: string
-  warehouse_id: string
-  type: 'IN' | 'OUT' | 'MOVE'
-  sub_type?: string
-  quantity: number
-  lot_number?: string
-  note?: string
-  to_warehouse_id?: string
-}
+type TransactionFormData = z.infer<typeof transactionSchema>
 
 const subTypeOptions: Record<TransactionType, { value: TransactionSubType; label: string }[]> = {
   IN: [
@@ -87,7 +79,7 @@ export function TransactionForm({
     reset,
     formState: { errors, isSubmitting },
   } = useForm<TransactionFormData>({
-    resolver: zodResolver(transactionSchema) as never,
+    resolver: zodResolver(transactionSchema),
     defaultValues: {
       type: defaultType,
       quantity: 1,
@@ -102,7 +94,7 @@ export function TransactionForm({
       await createTransaction.mutateAsync({
         item_id: data.item_id,
         warehouse_id: data.warehouse_id,
-        type: data.type as TransactionType,
+        type: data.type,
         sub_type: data.sub_type as TransactionSubType | undefined,
         quantity: data.quantity,
         lot_number: data.lot_number,
@@ -112,7 +104,7 @@ export function TransactionForm({
       reset()
       onSuccess?.()
     } catch (error) {
-      console.error('Failed to create transaction:', error)
+      logger.error('Failed to create transaction', error)
     }
   }
 

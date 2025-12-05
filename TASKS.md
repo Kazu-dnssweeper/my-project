@@ -30,6 +30,7 @@ Claude Codeで開発する際は、このタスクを上から順に実行して
 | Phase 8 ページ | ✅ 完了 | 24/24 |
 | Phase 9 テスト | ✅ 完了 | 12/12 |
 | Phase 10 手動動作確認 | ⏳ 進行中 | 0/42 |
+| Phase 11 コード改善 | ✅ 完了 | 9/9 |
 
 ---
 
@@ -683,7 +684,32 @@ Claude Codeで開発する際は、このタスクを上から順に実行して
 
 ---
 
-## 全タスク完了！ 🎉
+## Phase 11: コード改善・パフォーマンス最適化
+
+### Task 11-1: React最適化
+- [x] React.memo適用（AlertDropdownItem, AlertItem, BomTableRow, LotRow）
+- [x] useMemo/useCallback適用（DataTable, AlertDropdown等）
+
+### Task 11-2: 型安全性改善
+- [x] zodResolverの`as never`キャスト削除（Zod型推論使用）
+- [x] フォームの型定義を`z.infer`で統一
+
+### Task 11-3: ユーティリティ共通化
+- [x] 日付フォーマットユーティリティ（src/lib/date.ts）
+- [x] ロガーユーティリティ（src/lib/logger.ts）
+- [x] console.errorをloggerに統一
+
+### Task 11-4: Supabase最適化
+- [x] クライアントのシングルトン化
+- [x] 直接インポート（`supabase`エクスポート追加）
+
+### Task 11-5: バンドル最適化
+- [x] BarcodeScanner動的インポート（@zxing/library遅延ロード）
+
+---
+
+## 全タスク完了！
 
 MVPに必要なすべてのタスクが完了しました。
+Phase 11でパフォーマンス最適化・コード改善を実施済み。
 Storybookは依存関係の問題でスキップしましたが、将来的に対応可能です。

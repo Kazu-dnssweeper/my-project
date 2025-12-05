@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/dialog'
 import { Spinner } from '@/components/ui/spinner'
 import { useCategories, useCreateItem, useUpdateItem } from '../hooks/useItems'
+import { logger } from '@/lib/logger'
 import type { Item } from '@/types'
 
 const itemSchema = z.object({
@@ -36,18 +37,7 @@ const itemSchema = z.object({
   notes: z.string().optional(),
 })
 
-interface ItemFormData {
-  item_code: string
-  name: string
-  model_number?: string
-  category_id?: string
-  unit: string
-  safety_stock?: number
-  reorder_point?: number
-  lead_time_days?: number
-  location?: string
-  notes?: string
-}
+type ItemFormData = z.infer<typeof itemSchema>
 
 interface InventoryFormProps {
   item?: Item | null
@@ -75,7 +65,7 @@ export function InventoryForm({
     watch,
     formState: { errors, isSubmitting },
   } = useForm<ItemFormData>({
-    resolver: zodResolver(itemSchema) as never,
+    resolver: zodResolver(itemSchema),
     defaultValues: {
       item_code: item?.item_code || '',
       name: item?.name || '',
@@ -101,7 +91,7 @@ export function InventoryForm({
       onOpenChange(false)
       onSuccess?.()
     } catch (error) {
-      console.error('Failed to save item:', error)
+      logger.error('Failed to save item', error)
     }
   }
 
