@@ -277,7 +277,7 @@ interface Item {
 - [x] OAuthコールバック（`/auth/callback`）実装
 - [x] Google Cloud Console設定
 - [x] Supabase Google Provider設定
-- [ ] Supabase RLSポリシー設定（anon/authenticated用）
+- [x] Supabase RLSポリシー設定（anon/authenticated用）
 
 ### Task 7.5-2: パスワードリセット機能
 - [x] ForgotPasswordFormコンポーネント作成
@@ -300,7 +300,12 @@ interface Item {
 ### Task 7.5-5: オンボーディング
 - [x] OnboardingFormコンポーネント作成
 - [x] `/onboarding`ページ作成
-- [ ] 初回OAuthユーザーのテナント作成フロー確認
+- [x] 初回OAuthユーザーのテナント作成フロー確認（handle_new_user関数で実装）
+
+### Task 7.5-6: DB関数
+- [x] `handle_new_user` - 新規ユーザー作成時の自動処理
+- [x] `get_dashboard_kpi` - ダッシュボードKPI取得
+- [x] `get_reorder_alerts` - 発注点アラート取得
 
 ---
 
