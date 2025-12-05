@@ -5,8 +5,11 @@ import {
   getTransactions,
   getItemTransactions,
   createTransaction,
+  updateTransaction,
+  deleteTransaction,
   getInventoriesForTransaction,
 } from '../api'
+import type { UpdateTransactionData } from '../api'
 import type { TransactionFilters, CreateTransactionData } from '../types'
 
 export function useTransactions(
@@ -47,5 +50,33 @@ export function useInventoriesForTransaction(itemId?: string) {
   return useQuery({
     queryKey: ['inventories-for-transaction', itemId],
     queryFn: () => getInventoriesForTransaction(itemId),
+  })
+}
+
+export function useUpdateTransaction() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: UpdateTransactionData }) =>
+      updateTransaction(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['transactions'] })
+      queryClient.invalidateQueries({ queryKey: ['item-transactions'] })
+    },
+  })
+}
+
+export function useDeleteTransaction() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (id: string) => deleteTransaction(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['transactions'] })
+      queryClient.invalidateQueries({ queryKey: ['item-transactions'] })
+      queryClient.invalidateQueries({ queryKey: ['items'] })
+      queryClient.invalidateQueries({ queryKey: ['item-inventories'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+    },
   })
 }

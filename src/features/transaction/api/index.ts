@@ -226,3 +226,43 @@ export async function getInventoriesForTransaction(
 
   return data as InventoryForTransaction[]
 }
+
+export interface UpdateTransactionData {
+  quantity?: number
+  note?: string
+  sub_type?: string
+}
+
+export async function updateTransaction(
+  id: string,
+  data: UpdateTransactionData
+): Promise<Transaction | null> {
+  const { data: tx, error } = await supabase
+    .from('transactions')
+    .update({
+      ...data,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) {
+    console.error('Failed to update transaction:', error)
+    throw new Error(error.message)
+  }
+
+  return tx as Transaction
+}
+
+export async function deleteTransaction(id: string): Promise<void> {
+  const { error } = await supabase
+    .from('transactions')
+    .delete()
+    .eq('id', id)
+
+  if (error) {
+    console.error('Failed to delete transaction:', error)
+    throw new Error(error.message)
+  }
+}

@@ -11,11 +11,11 @@ Claude Codeで開発する際は、このタスクを上から順に実行して
 |-------|------|----------|
 | Phase 0 セットアップ | ✅ 完了 | 26/26 |
 | Phase 1 Atoms | ✅ 完了 | 18/18 |
-| Phase 2 Molecules (Forms) | ⬜ 未着手 | 0/15 |
-| Phase 3 Molecules (Display) | ⬜ 未着手 | 0/18 |
+| Phase 2 Molecules (Forms) | ✅ 完了 | 15/15 |
+| Phase 3 Molecules (Display) | ✅ 完了 | 18/18 |
 | Phase 4 Layouts | ✅ 完了 | 12/12 |
 | Phase 5 inventory | ✅ 完了 | 24/24 |
-| Phase 6 transaction | 🔶 部分完了 | 28/42 |
+| Phase 6 transaction | ✅ 完了 | 42/42 |
 | Phase 7 barcode | 🔶 部分完了 | 18/38 |
 | Phase 7.5 拡張認証 | ✅ 完了 | 20/20 |
 | Phase 7.6 DB関数 | ✅ 完了 | 12/12 |
@@ -127,37 +127,37 @@ Claude Codeで開発する際は、このタスクを上から順に実行して
 
 ### Task 2-1: FormField
 `src/components/forms/form-field.tsx`
-- [ ] Label + Input + Error のラッパー
-- [ ] required表示（*マーク）
-- [ ] エラーメッセージ表示
-- [ ] ヘルプテキスト表示
+- [x] Label + Input + Error のラッパー
+- [x] required表示（*マーク）
+- [x] エラーメッセージ表示
+- [x] ヘルプテキスト表示
 
 ### Task 2-2: SearchBox
 `src/components/forms/search-box.tsx`
-- [ ] 検索アイコン付きInput
-- [ ] debounce対応（300ms）
-- [ ] クリアボタン
-- [ ] プレースホルダー
+- [x] 検索アイコン付きInput
+- [x] debounce対応（300ms）
+- [x] クリアボタン
+- [x] プレースホルダー
 
 ### Task 2-3: NumberInput
 `src/components/forms/number-input.tsx`
-- [ ] +/- ステッパーボタン
-- [ ] min/max制限
-- [ ] step指定
-- [ ] 直接入力対応
+- [x] +/- ステッパーボタン
+- [x] min/max制限
+- [x] step指定
+- [x] 直接入力対応
 
 ### Task 2-4: SelectField
 `src/components/forms/select-field.tsx`
-- [ ] Label + Select + Error の組み合わせ
-- [ ] プレースホルダー
-- [ ] disabled状態
+- [x] Label + Select + Error の組み合わせ
+- [x] プレースホルダー
+- [x] disabled状態
 
 ### Task 2-5: ComboBox
 `src/components/forms/combo-box.tsx`
-- [ ] 検索可能なドロップダウン
-- [ ] 非同期検索対応
-- [ ] ローディング表示
-- [ ] 「該当なし」表示
+- [x] 検索可能なドロップダウン
+- [x] 非同期検索対応
+- [x] ローディング表示
+- [x] 「該当なし」表示
 
 ---
 
@@ -165,20 +165,20 @@ Claude Codeで開発する際は、このタスクを上から順に実行して
 
 ### Task 3-1: DataTable
 `src/components/data-display/data-table.tsx`
-- [ ] ジェネリック型対応
-- [ ] カラム定義
-- [ ] ソート機能
-- [ ] ローディング状態（Skeleton）
-- [ ] 空状態表示
-- [ ] 行クリックイベント
+- [x] ジェネリック型対応
+- [x] カラム定義
+- [x] ソート機能
+- [x] ローディング状態（Skeleton）
+- [x] 空状態表示
+- [x] 行クリックイベント
 
 ### Task 3-2: Pagination
 `src/components/data-display/pagination.tsx`
-- [ ] ページ番号表示
-- [ ] 前へ/次へボタン
-- [ ] 先頭/末尾ボタン
-- [ ] 件数表示（1-10 of 100）
-- [ ] ページサイズ選択
+- [x] ページ番号表示
+- [x] 前へ/次へボタン
+- [x] 先頭/末尾ボタン
+- [x] 件数表示（1-10 of 100）
+- [x] ページサイズ選択
 
 ### Task 3-3: KPICard
 `src/components/data-display/kpi-card.tsx`
@@ -189,25 +189,25 @@ Claude Codeで開発する際は、このタスクを上から順に実行して
 
 ### Task 3-4: AlertCard
 `src/components/data-display/alert-card.tsx`
-- [ ] type: info
-- [ ] type: warning
-- [ ] type: error
-- [ ] type: success
-- [ ] アクションボタン
+- [x] type: info
+- [x] type: warning
+- [x] type: error
+- [x] type: success
+- [x] アクションボタン
 
 ### Task 3-5: EmptyState
 `src/components/data-display/empty-state.tsx`
-- [ ] アイコン表示
-- [ ] タイトル
-- [ ] 説明文
-- [ ] アクションボタン
+- [x] アイコン表示
+- [x] タイトル
+- [x] 説明文
+- [x] アクションボタン
 
 ### Task 3-6: StatusBadge
 `src/components/data-display/status-badge.tsx`
-- [ ] status: ok（緑）
-- [ ] status: warning（黄）
-- [ ] status: low（オレンジ）
-- [ ] status: out（赤）
+- [x] status: ok（緑）
+- [x] status: warning（黄）
+- [x] status: low（オレンジ）
+- [x] status: out（赤）
 
 ---
 
@@ -317,16 +317,16 @@ Claude Codeで開発する際は、このタスクを上から順に実行して
 - [x] getItemTransactions(itemId)
 - [x] createTransaction(data)
 - [x] getInventoriesForTransaction(itemId)
-- [ ] updateTransaction(id, data) ※未実装
-- [ ] deleteTransaction(id) ※未実装
+- [x] updateTransaction(id, data)
+- [x] deleteTransaction(id)
 
 ### Task 6-3: カスタムフック
 `src/features/transaction/hooks/useTransactions.ts`
 - [x] useTransactions(filters)
 - [x] useItemTransactions(itemId)
 - [x] useCreateTransaction()
-- [ ] useUpdateTransaction() ※未実装
-- [ ] useDeleteTransaction() ※未実装
+- [x] useUpdateTransaction()
+- [x] useDeleteTransaction()
 
 ### Task 6-4: TransactionTable
 `src/features/transaction/components/TransactionTable.tsx`
@@ -584,9 +584,9 @@ Claude Codeで開発する際は、このタスクを上から順に実行して
 ## 未実装タスク一覧（次回対応）
 
 ### 優先度: 高
-- [ ] Phase 2: 共通フォームコンポーネント（FormField, SearchBox等）
-- [ ] Phase 3: 共通表示コンポーネント（DataTable, Pagination等）
-- [ ] Task 6-2: updateTransaction, deleteTransaction
+- [x] ~~Phase 2: 共通フォームコンポーネント（FormField, SearchBox等）~~ ✅完了
+- [x] ~~Phase 3: 共通表示コンポーネント（DataTable, Pagination等）~~ ✅完了
+- [x] ~~Task 6-2: updateTransaction, deleteTransaction~~ ✅完了
 - [ ] Task 7-6: LabelGenerator（バーコードラベル生成）
 
 ### 優先度: 中
