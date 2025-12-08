@@ -14,6 +14,15 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const data = registerSchema.parse(body)
 
+    // 環境変数チェック
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('SUPABASE_SERVICE_ROLE_KEY is not set')
+      return NextResponse.json(
+        { error: 'サーバー設定エラー: Service Role Key が設定されていません' },
+        { status: 500 }
+      )
+    }
+
     // Service Role Key を使用してRLSをバイパス
     const supabaseAdmin = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -38,6 +47,7 @@ export async function POST(request: NextRequest) {
     })
 
     if (authError) {
+      console.error('Auth creation error:', authError)
       return NextResponse.json(
         { error: authError.message },
         { status: 400 }
@@ -53,6 +63,7 @@ export async function POST(request: NextRequest) {
 
     // 2. トリガーが作成したユーザー情報を取得（Service Roleなので RLS をバイパス）
     let userData = null
+    let lastError = null
     let retries = 5
     while (retries > 0 && !userData) {
       const { data: fetchedUser, error: userError } = await supabaseAdmin
@@ -66,6 +77,7 @@ export async function POST(request: NextRequest) {
         break
       }
 
+      lastError = userError
       retries--
       if (retries > 0) {
         await new Promise(resolve => setTimeout(resolve, 300))
@@ -73,8 +85,9 @@ export async function POST(request: NextRequest) {
     }
 
     if (!userData) {
+      console.error('User fetch failed after retries. Last error:', lastError)
       return NextResponse.json(
-        { error: 'ユーザー情報の取得に失敗しました' },
+        { error: 'ユーザー情報の取得に失敗しました。トリガーがユーザーを作成していない可能性があります。' },
         { status: 500 }
       )
     }
@@ -98,6 +111,8 @@ export async function POST(request: NextRequest) {
       },
     })
   } catch (error) {
+    console.error('Registration error:', error)
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: '入力データが不正です', details: error.errors },
@@ -105,8 +120,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const errorMessage = error instanceof Error ? error.message : '不明なエラー'
     return NextResponse.json(
-      { error: '登録処理中にエラーが発生しました' },
+      { error: `登録処理中にエラーが発生しました: ${errorMessage}` },
       { status: 500 }
     )
   }
