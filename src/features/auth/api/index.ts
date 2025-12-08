@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/client'
+import { logger } from '@/lib/logger'
 import type { LoginFormData, RegisterFormData, AuthUser } from '../types'
 
 const supabase = createClient()
@@ -36,12 +37,14 @@ export async function login(data: LoginFormData): Promise<AuthUser> {
 
 export async function register(data: RegisterFormData): Promise<AuthUser> {
   // 1. Supabase Authでユーザー作成
+  // 注: handle_new_user トリガーがテナントとユーザーを自動作成する
   const { data: authData, error: authError } = await supabase.auth.signUp({
     email: data.email,
     password: data.password,
     options: {
       data: {
         name: data.name,
+        full_name: data.name,
       },
     },
   })
@@ -54,37 +57,48 @@ export async function register(data: RegisterFormData): Promise<AuthUser> {
     throw new Error('ユーザー登録に失敗しました')
   }
 
-  // 2. テナント作成
-  const { data: tenantData, error: tenantError } = await supabase
-    .from('tenants')
-    .insert({ name: data.companyName })
-    .select()
-    .single()
+  // 2. トリガーが作成したユーザー情報を取得
+  // 少し待ってからリトライ（トリガー完了を待つ）
+  let userData = null
+  let retries = 3
+  while (retries > 0 && !userData) {
+    const { data: fetchedUser, error: userError } = await supabase
+      .from('users')
+      .select('*, tenants(id, name)')
+      .eq('id', authData.user.id)
+      .single()
 
-  if (tenantError) {
-    throw new Error('会社情報の登録に失敗しました')
+    if (!userError && fetchedUser) {
+      userData = fetchedUser
+      break
+    }
+
+    retries--
+    if (retries > 0) {
+      await new Promise(resolve => setTimeout(resolve, 500))
+    }
   }
 
-  // 3. ユーザー情報をusersテーブルに保存
-  const { data: userData, error: userError } = await supabase
-    .from('users')
-    .insert({
-      id: authData.user.id,
-      tenant_id: tenantData.id,
-      email: data.email,
-      name: data.name,
-      role: 'admin',
-    })
-    .select()
-    .single()
+  if (!userData) {
+    throw new Error('ユーザー情報の取得に失敗しました')
+  }
 
-  if (userError) {
-    throw new Error('ユーザー情報の保存に失敗しました')
+  // 3. 会社名が指定されている場合、テナント名を更新
+  if (data.companyName && userData.tenant_id) {
+    const { error: tenantError } = await supabase
+      .from('tenants')
+      .update({ name: data.companyName })
+      .eq('id', userData.tenant_id)
+
+    if (tenantError) {
+      // テナント名の更新失敗は致命的ではないのでログのみ
+      logger.warn('テナント名の更新に失敗しました', { error: tenantError })
+    }
   }
 
   return {
     ...userData,
-    tenant_name: data.companyName,
+    tenant_name: data.companyName || userData.tenants?.name,
   } as AuthUser
 }
 
