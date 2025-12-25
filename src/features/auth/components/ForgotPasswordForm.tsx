@@ -195,6 +195,9 @@ export function ResetPasswordForm() {
         throw updateError
       }
 
+      // セキュリティ: パスワード変更後は全セッションを無効化
+      await supabase.auth.signOut({ scope: 'global' })
+
       setSuccess(true)
     } catch (err) {
       setError(
